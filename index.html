@@ -3,77 +3,465 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#121212">
-  <title>Relay Messenger (Yandex)</title>
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Relay Secure Messenger v2.5.1</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: #0d0d0d; color: #e0e0e0; display: flex; justify-content: center; align-items: center; min-height: 100dvh; height: 100dvh; overflow: hidden; }
-    #app-viewport { width: 100%; max-width: 800px; height: 100dvh; display: flex; flex-direction: column; background: #121212; position: relative; }
-    @media (min-width: 768px) { #app-viewport { height: 90dvh; max-height: 850px; border-radius: 16px; border: 1px solid #2a2a2a; box-shadow: 0 12px 40px rgba(0,0,0,0.6); overflow: hidden; } }
-    header { background: #1a1a1a; padding: 14px 20px; border-bottom: 1px solid #282828; display: flex; justify-content: space-between; align-items: center; z-index: 2; }
-    header h3 { font-size: 16px; font-weight: 600; }
-    .header-actions { display: flex; align-items: center; gap: 10px; }
-    .status { font-size: 11px; padding: 4px 10px; border-radius: 12px; background: #262626; color: #888; font-weight: 500; transition: all 0.3s ease; }
-    .status.online { background: rgba(46, 125, 50, 0.2); color: #81c784; border: 1px solid rgba(76, 175, 80, 0.3); }
-    .status.error { background: rgba(183, 28, 28, 0.2); color: #e57373; border: 1px solid rgba(239, 83, 80, 0.3); }
-    #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background: #121212; }
-    #chat-box::-webkit-scrollbar { width: 6px; }
-    #chat-box::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
-    .msg { max-width: 80%; padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.45; word-break: break-word; }
-    .msg.my { align-self: flex-end; background: #2e7d32; color: #ffffff; border-bottom-right-radius: 2px; }
-    .msg.their { align-self: flex-start; background: #1e1e1e; color: #e0e0e0; border: 1px solid #2a2a2a; border-bottom-left-radius: 2px; }
-    .msg .time { font-size: 10px; opacity: 0.65; margin-top: 4px; text-align: right; }
-    footer { padding: 14px 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom, 12px)); background: #1a1a1a; display: flex; gap: 10px; border-top: 1px solid #282828; }
-    input[type="text"], input[type="password"], select { background: #0f0f0f; border: 1px solid #2c2c2c; color: #fff; padding: 12px 14px; border-radius: 10px; outline: none; font-size: 14px; }
-    footer input[type="text"] { flex: 1; }
-    button { background: #2e7d32; color: white; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px; }
-    .btn-secondary { background: #262626; color: #ccc; padding: 6px 12px; font-size: 13px; }
-    #settings { position: absolute; inset: 0; background: #121212; padding: 24px; display: flex; flex-direction: column; gap: 12px; z-index: 10; overflow-y: auto; }
-    #settings label { font-size: 12px; color: #888; }
+    :root {
+      --bg-main: #0a0a0a;
+      --bg-card: #121212;
+      --bg-header: rgba(22, 22, 22, 0.85);
+      --accent: #2e7d32;
+      --accent-hover: #338a36;
+      --msg-my: #1e4620;
+      --msg-their: #1a1a1a;
+      --text-main: #ededed;
+      --text-muted: #888888;
+      --border-color: #242424;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; 
+      -webkit-tap-highlight-color: transparent; 
+    }
+
+    body {
+      background: var(--bg-main);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100dvh;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    #app-viewport {
+      width: 100%;
+      max-width: 900px;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card);
+      position: relative;
+    }
+
+    @media (min-width: 768px) {
+      #app-viewport {
+        height: 92dvh;
+        max-height: 880px;
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+        overflow: hidden;
+      }
+    }
+
+    /* --- Header --- */
+    header {
+      background: var(--bg-header);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 14px 20px;
+      padding-top: calc(14px + env(safe-area-inset-top, 0px));
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 5;
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand h3 { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
+    .version-tag { font-size: 10px; background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 6px; color: #aaa; }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      transition: background 0.3s;
+    }
+    .status-dot.online { background: #66bb6a; box-shadow: 0 0 10px rgba(102, 187, 106, 0.5); }
+    .status-dot.error { background: #ef5350; }
+
+    .header-actions { display: flex; align-items: center; gap: 6px; }
+
+    .btn-icon {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: color 0.2s, background 0.2s;
+    }
+    .btn-icon:hover { color: #fff; background: rgba(255,255,255,0.05); }
+
+    /* --- Chat Box --- */
+    #chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--bg-main);
+    }
+
+    #chat-box::-webkit-scrollbar { width: 5px; }
+    #chat-box::-webkit-scrollbar-thumb { background: #262626; border-radius: 3px; }
+
+    /* --- Messages --- */
+    .msg-wrapper {
+      display: flex;
+      flex-direction: column;
+      max-width: 80%;
+      position: relative;
+      animation: msgPop 0.18s cubic-bezier(0.1, 0.9, 0.2, 1);
+    }
+
+    @keyframes msgPop {
+      from { opacity: 0; transform: translateY(6px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .msg-wrapper.my { align-self: flex-end; }
+    .msg-wrapper.their { align-self: flex-start; }
+
+    .msg {
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 14.5px;
+      line-height: 1.45;
+      word-break: break-word;
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      transition: transform 0.1s ease;
+    }
+
+    .msg:active {
+      transform: scale(0.98);
+    }
+
+    .msg-wrapper.my .msg {
+      background: var(--msg-my);
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .msg-wrapper.their .msg {
+      background: var(--msg-their);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg-meta {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.55);
+      margin-top: 4px;
+      float: right;
+      margin-left: 10px;
+    }
+
+    .ticks { font-size: 11px; font-weight: bold; letter-spacing: -2px; }
+    .ticks.read { color: #81c784; }
+    .edited-mark { font-style: italic; font-size: 10px; opacity: 0.7; margin-right: 2px; }
+
+    /* --- Footer Input --- */
+    footer {
+      padding: 12px 16px;
+      padding-bottom: calc(12px + env(safe-area-inset-bottom, 8px));
+      background: var(--bg-header);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .edit-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.04);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #aaa;
+      border-left: 3px solid var(--accent);
+    }
+
+    .input-row { display: flex; gap: 10px; align-items: center; }
+
+    input[type="text"], input[type="password"], select {
+      background: #141414;
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 12px;
+      outline: none;
+      font-size: 14.5px;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus, input[type="password"]:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    .input-row input[type="text"] { flex: 1; }
+
+    .btn-send {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .btn-send:hover { background: var(--accent-hover); }
+
+    /* --- Bottom Sheet Modal --- */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(4px);
+      z-index: 30;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .bottom-sheet {
+      width: 100%;
+      background: #181818;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      padding: 20px;
+      padding-bottom: calc(20px + env(safe-area-inset-bottom, 10px));
+      border-top: 1px solid var(--border-color);
+      transform: translateY(100%);
+      transition: transform 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .modal-overlay.active .bottom-sheet {
+      transform: translateY(0);
+    }
+
+    .sheet-handle {
+      width: 36px;
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+      align-self: center;
+      margin-bottom: 6px;
+    }
+
+    .sheet-preview {
+      font-size: 13px;
+      color: #888;
+      background: #111;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sheet-btn {
+      background: #222;
+      border: 1px solid #2a2a2a;
+      color: #fff;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .sheet-btn:active { background: #2a2a2a; }
+    .sheet-btn.danger { color: #ef5350; border-color: rgba(239, 83, 80, 0.2); }
+
+    /* --- Onboarding & Settings Modals --- */
+    .full-screen-modal {
+      position: absolute;
+      inset: 0;
+      background: var(--bg-card);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      z-index: 40;
+      overflow-y: auto;
+    }
+
+    .full-screen-modal h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.4px; }
+    .full-screen-modal p { font-size: 14px; color: #aaa; line-height: 1.5; }
+    
+    .feature-card {
+      background: #161616;
+      border: 1px solid #242424;
+      padding: 14px;
+      border-radius: 14px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .feature-icon { font-size: 20px; background: #222; padding: 8px; border-radius: 10px; }
+    .feature-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+    .feature-desc { font-size: 12px; color: #888; }
+
     .hidden { display: none !important; }
-    #debug-log { font-size: 10px; color: #ff8a80; padding: 4px 20px; background: #181818; border-bottom: 1px solid #222; }
   </style>
 </head>
 <body>
 
   <div id="app-viewport">
-    <div id="settings">
-      <h2>⚙️ Настройки Яндекс Облака</h2>
-      <label>Яндекс OAuth Токен:</label>
-      <input type="password" id="token-input" placeholder="Пароль/Токен из Яндекс OAuth" autocomplete="off">
-      <label>Пароль шифрования чата:</label>
-      <input type="password" id="secret-input" placeholder="Общий секретный пароль" autocomplete="off">
-      <label>Ваше местоположение:</label>
-      <select id="role-select">
-        <option value="armenia">Я в Армении (Пишу в armenia.json)</option>
-        <option value="russia">Я в России (Пишу в russia.json)</option>
-      </select>
-      <button onclick="saveSettings()" style="margin-top: 12px;">Сохранить и войти</button>
+
+    <!-- Приветственный экран / Инструкция (Onboarding) -->
+    <div id="onboarding-modal" class="full-screen-modal hidden">
+      <h2>👋 Добро пожаловать в Relay</h2>
+      <p>Защищённый offline-first мессенджер для безопасной связи между Арменией и Россией через облачную инфраструктуру Яндекса.</p>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div>
+          <div class="feature-title">E2E Шифрование (AES-GCM)</div>
+          <div class="feature-desc">Все сообщения шифруются прямо на вашем устройстве. Яндекс видит только зашифрованный шум.</div>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">☁️</div>
+        <div>
+          <div class="feature-title">Яндекс Облако (Мост)</div>
+          <div class="feature-desc">Передача сообщений происходит через `.json` файлы на вашем Яндекс.Диске без риска блокировки API.</div>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">✓✓</div>
+        <div>
+          <div class="feature-title">Статусы прочтения</div>
+          <div class="feature-desc">Одна галочка — отправлено в облако. Две зелёные галочки — собеседник открыл чат и прочитал текст.</div>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">👆</div>
+        <div>
+          <div class="feature-title">Управление сообщениями</div>
+          <div class="feature-desc">Зажмите сообщение (300мс), чтобы скопировать, изменить или удалить его.</div>
+        </div>
+      </div>
+
+      <button class="btn-send" onclick="closeOnboarding()" style="margin-top: auto; padding: 14px;">Перейти к настройкам</button>
     </div>
 
+    <!-- Настройки -->
+    <div id="settings-modal" class="full-screen-modal hidden">
+      <h2>⚙️ Настройки подключения</h2>
+      <p style="font-size: 13px;">Укажите OAuth-токен Яндекса и пароль шифрования для входа.</p>
+      
+      <label style="font-size: 12px; color: var(--text-muted);">Яндекс OAuth Токен:</label>
+      <input type="password" id="token-input" placeholder="Токен из oauth.yandex.ru" autocomplete="off">
+      
+      <label style="font-size: 12px; color: var(--text-muted);">Пароль шифрования чата:</label>
+      <input type="password" id="secret-input" placeholder="Общий секретный пароль" autocomplete="off">
+      
+      <label style="font-size: 12px; color: var(--text-muted);">Ваше местоположение:</label>
+      <select id="role-select">
+        <option value="armenia">Я в Армении (Файл: armenia.json)</option>
+        <option value="russia">Я в России (Файл: russia.json)</option>
+      </select>
+
+      <div style="margin-top: auto; display: flex; gap: 10px;">
+        <button class="btn-send" onclick="saveSettings()" style="flex: 1; padding: 14px;">Сохранить и войти</button>
+      </div>
+    </div>
+
+    <!-- Нижнее Всплывающее Меню (Action Sheet) -->
+    <div id="action-sheet-overlay" class="modal-overlay" onclick="closeActionSheet()">
+      <div class="bottom-sheet" onclick="event.stopPropagation()">
+        <div class="sheet-handle"></div>
+        <div id="sheet-preview" class="sheet-preview">Текст сообщения...</div>
+        <button id="btn-copy" class="sheet-btn" onclick="triggerCopyFromSheet()">📋 Копировать текст</button>
+        <button id="btn-edit" class="sheet-btn" onclick="triggerEditFromSheet()">✏️ Изменить сообщение</button>
+        <button id="btn-delete" class="sheet-btn danger" onclick="triggerDeleteFromSheet()">🗑 Удалить сообщение</button>
+      </div>
+    </div>
+
+    <!-- Шапка -->
     <header>
-      <h3>💬 Relay Messenger</h3>
+      <div class="brand">
+        <div id="status-dot" class="status-dot"></div>
+        <h3>Relay</h3>
+        <span class="version-tag">v2.5.1</span>
+      </div>
       <div class="header-actions">
-        <button onclick="openSettings()" class="btn-secondary">⚙️</button>
-        <span id="status-badge" class="status">Оффлайн</span>
+        <button onclick="openOnboarding()" class="btn-icon" title="Инструкция">❓</button>
+        <button onclick="openSettings()" class="btn-icon" title="Настройки">⚙️</button>
       </div>
     </header>
-    <div id="debug-log" class="hidden"></div>
 
+    <!-- Область сообщений -->
     <div id="chat-box"></div>
 
+    <!-- Поле ввода -->
     <footer>
-      <input type="text" id="msg-input" placeholder="Введите сообщение..." onkeydown="if(event.key==='Enter') sendMsg()">
-      <button onclick="sendMsg()">Отправить</button>
+      <div id="edit-bar" class="edit-bar hidden">
+        <span id="edit-preview">Редактирование...</span>
+        <button onclick="cancelEdit()" class="btn-icon" style="padding: 2px 6px;">✕</button>
+      </div>
+      <div class="input-row">
+        <input type="text" id="msg-input" placeholder="Сообщение..." onkeydown="if(event.key==='Enter') handleSend()">
+        <button class="btn-send" onclick="handleSend()">Отправить</button>
+      </div>
     </footer>
   </div>
 
   <script>
-    let config = JSON.parse(localStorage.getItem('chat_cfg_yandex_v2') || '{}');
+    let config = JSON.parse(localStorage.getItem('chat_cfg_v251') || '{}');
     let db, cryptoKey;
+    let editingMsgId = null;
+    let targetMsgForSheet = null;
+    let lastReadRemoteTimestamp = 0;
 
     // --- IndexedDB ---
-    const request = indexedDB.open("OfflineChatDB_Yandex_v2", 1);
+    const request = indexedDB.open("RelayChatDB_v251", 1);
     request.onupgradeneeded = e => {
       db = e.target.result;
       if (!db.objectStoreNames.contains("messages")) {
@@ -82,18 +470,34 @@
     };
     request.onsuccess = e => {
       db = e.target.result;
-      if (config.secret && config.token) {
-        initApp();
-      } else {
+      
+      const hasSeenGuide = localStorage.getItem('relay_seen_guide');
+      if (!hasSeenGuide) {
+        openOnboarding();
+      } else if (!config.secret || !config.token) {
         openSettings();
+      } else {
+        initApp();
       }
     };
+
+    function openOnboarding() {
+      document.getElementById('onboarding-modal').classList.remove('hidden');
+    }
+
+    function closeOnboarding() {
+      localStorage.setItem('relay_seen_guide', 'true');
+      document.getElementById('onboarding-modal').classList.add('hidden');
+      if (!config.secret || !config.token) {
+        openSettings();
+      }
+    }
 
     function openSettings() {
       if (config.token) document.getElementById('token-input').value = config.token;
       if (config.secret) document.getElementById('secret-input').value = config.secret;
       if (config.role) document.getElementById('role-select').value = config.role;
-      document.getElementById('settings').classList.remove('hidden');
+      document.getElementById('settings-modal').classList.remove('hidden');
     }
 
     function saveSettings() {
@@ -101,23 +505,20 @@
       const secret = document.getElementById('secret-input').value.trim();
       const role = document.getElementById('role-select').value;
 
-      if (!token || !secret) {
-        alert("Укажите токен и пароль!");
-        return;
-      }
+      if (!token || !secret) { alert("Укажите токен и пароль!"); return; }
 
       config = { token, secret, role };
-      localStorage.setItem('chat_cfg_yandex_v2', JSON.stringify(config));
+      localStorage.setItem('chat_cfg_v251', JSON.stringify(config));
+      document.getElementById('settings-modal').classList.add('hidden');
       initApp();
     }
 
     async function initApp() {
-      document.getElementById('settings').classList.add('hidden');
       try { cryptoKey = await deriveKey(config.secret); } catch (e) { return; }
       await renderMessages();
       syncWithYandex();
       if (window.syncInterval) clearInterval(window.syncInterval);
-      window.syncInterval = setInterval(syncWithYandex, 4000);
+      window.syncInterval = setInterval(syncWithYandex, 3000);
     }
 
     // --- Crypto ---
@@ -125,7 +526,7 @@
       const enc = new TextEncoder();
       const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(secret), "PBKDF2", false, ["deriveKey"]);
       return crypto.subtle.deriveKey(
-        { name: "PBKDF2", salt: enc.encode("yandex_salt_v2"), iterations: 50000, hash: "SHA-256" },
+        { name: "PBKDF2", salt: enc.encode("relay_salt_v251"), iterations: 50000, hash: "SHA-256" },
         keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
       );
     }
@@ -148,13 +549,14 @@
       } catch (e) { return null; }
     }
 
-    function getAllMessagesFromDB() {
+    // --- DB Helper ---
+    function getAllFromDB() {
       return new Promise((resolve) => {
         if (!db) return resolve([]);
         const tx = db.transaction("messages", "readonly");
-        const store = tx.objectStore("messages").getAll();
-        store.onsuccess = () => resolve(store.result || []);
-        store.onerror = () => resolve([]);
+        const req = tx.objectStore("messages").getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
       });
     }
 
@@ -166,60 +568,209 @@
       });
     }
 
-    async function sendMsg() {
+    function deleteFromDB(id) {
+      return new Promise((resolve) => {
+        const tx = db.transaction("messages", "readwrite");
+        tx.objectStore("messages").delete(id);
+        tx.oncomplete = () => resolve();
+      });
+    }
+
+    // --- Long Press Logic (300ms) ---
+    function attachLongPress(element, msgObj, isMy) {
+      let timer = null;
+
+      const startPress = () => {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          if (navigator.vibrate) navigator.vibrate(50);
+          openActionSheet(msgObj, isMy);
+        }, 300);
+      };
+
+      const cancelPress = () => {
+        if (timer) {
+          clearTimeout(timer);
+          timer = null;
+        }
+      };
+
+      element.addEventListener('touchstart', startPress, { passive: true });
+      element.addEventListener('touchend', cancelPress);
+      element.addEventListener('touchmove', cancelPress);
+
+      element.addEventListener('mousedown', (e) => {
+        if (e.button === 0) startPress();
+      });
+      element.addEventListener('mouseup', cancelPress);
+      element.addEventListener('mouseleave', cancelPress);
+
+      element.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        openActionSheet(msgObj, isMy);
+      });
+    }
+
+    // --- Bottom Sheet Modal Logic ---
+    function openActionSheet(msg, isMy) {
+      targetMsgForSheet = msg;
+      document.getElementById('sheet-preview').textContent = msg.text;
+
+      // Показываем Изменить/Удалить только для своих сообщений
+      const btnEdit = document.getElementById('btn-edit');
+      const btnDelete = document.getElementById('btn-delete');
+      if (isMy) {
+        btnEdit.classList.remove('hidden');
+        btnDelete.classList.remove('hidden');
+      } else {
+        btnEdit.classList.add('hidden');
+        btnDelete.classList.add('hidden');
+      }
+
+      document.getElementById('action-sheet-overlay').classList.add('active');
+    }
+
+    function closeActionSheet() {
+      document.getElementById('action-sheet-overlay').classList.remove('active');
+      targetMsgForSheet = null;
+    }
+
+    async function triggerCopyFromSheet() {
+      if (!targetMsgForSheet) return;
+      const textToCopy = targetMsgForSheet.text;
+
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(textToCopy);
+        } else {
+          // Запасной варианты для старых браузеров
+          const textArea = document.createElement("textarea");
+          textArea.value = textToCopy;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+        }
+
+        const btn = document.getElementById('btn-copy');
+        const origText = btn.innerHTML;
+        btn.innerHTML = '✅ Скопировано!';
+        setTimeout(() => {
+          btn.innerHTML = origText;
+          closeActionSheet();
+        }, 400);
+
+      } catch (err) {
+        alert('Не удалось скопировать текст');
+        closeActionSheet();
+      }
+    }
+
+    function triggerEditFromSheet() {
+      if (!targetMsgForSheet) return;
+      startEdit(targetMsgForSheet.id, targetMsgForSheet.text);
+      closeActionSheet();
+    }
+
+    async function triggerDeleteFromSheet() {
+      if (!targetMsgForSheet) return;
+      await deleteFromDB(targetMsgForSheet.id);
+      closeActionSheet();
+      await renderMessages();
+      syncWithYandex();
+    }
+
+    // --- Actions ---
+    async function handleSend() {
       const input = document.getElementById('msg-input');
       const text = input.value.trim();
       if (!text) return;
 
-      const msg = { 
-        id: Date.now().toString(), 
-        sender: config.role, 
-        text, 
-        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) 
-      };
+      if (editingMsgId) {
+        const messages = await getAllFromDB();
+        const msg = messages.find(m => m.id === editingMsgId);
+        if (msg) {
+          msg.text = text;
+          msg.edited = true;
+          await saveToDB(msg);
+        }
+        cancelEdit();
+      } else {
+        const msg = {
+          id: Date.now().toString(),
+          timestamp: Date.now(),
+          sender: config.role,
+          text,
+          time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+        };
+        await saveToDB(msg);
+      }
 
-      await saveToDB(msg);
       input.value = '';
       await renderMessages();
       syncWithYandex();
     }
 
+    function startEdit(id, currentText) {
+      editingMsgId = id;
+      document.getElementById('edit-preview').textContent = `Редактирование: ${currentText}`;
+      document.getElementById('edit-bar').classList.remove('hidden');
+      const input = document.getElementById('msg-input');
+      input.value = currentText;
+      input.focus();
+    }
+
+    function cancelEdit() {
+      editingMsgId = null;
+      document.getElementById('edit-bar').classList.add('hidden');
+      document.getElementById('msg-input').value = '';
+    }
+
+    // --- Render ---
     async function renderMessages() {
-      const messages = await getAllMessagesFromDB();
+      const messages = await getAllFromDB();
       const box = document.getElementById('chat-box');
       box.innerHTML = '';
 
-      messages.sort((a, b) => Number(a.id) - Number(b.id)).forEach(m => {
-        const div = document.createElement('div');
-        div.className = `msg ${m.sender === config.role ? 'my' : 'their'}`;
-        div.appendChild(document.createTextNode(m.text));
-        
-        const timeDiv = document.createElement('div');
-        timeDiv.className = 'time';
-        timeDiv.textContent = m.time;
-        div.appendChild(timeDiv);
-        
-        box.appendChild(div);
+      messages.sort((a, b) => Number(a.timestamp) - Number(b.timestamp)).forEach(m => {
+        const isMy = m.sender === config.role;
+        const wrapper = document.createElement('div');
+        wrapper.className = `msg-wrapper ${isMy ? 'my' : 'their'}`;
+
+        let ticksHtml = '';
+        if (isMy) {
+          const isRead = Number(m.timestamp) <= lastReadRemoteTimestamp;
+          ticksHtml = `<span class="ticks ${isRead ? 'read' : ''}">${isRead ? '✓✓' : '✓'}</span>`;
+        }
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'msg';
+        msgDiv.innerHTML = `
+          ${escapeHtml(m.text)}
+          <div class="msg-meta">
+            ${m.edited ? '<span class="edited-mark">изм.</span>' : ''}
+            <span>${m.time}</span>
+            ${ticksHtml}
+          </div>
+        `;
+
+        attachLongPress(msgDiv, m, isMy);
+
+        wrapper.appendChild(msgDiv);
+        box.appendChild(wrapper);
       });
       box.scrollTop = box.scrollHeight;
     }
 
-    function logError(msg) {
-      const log = document.getElementById('debug-log');
-      if (msg) {
-        log.textContent = "Ошибка: " + msg;
-        log.classList.remove('hidden');
-      } else {
-        log.classList.add('hidden');
-      }
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    // --- Yandex Sync Core ---
+    // --- Yandex Cloud Sync ---
     async function syncWithYandex() {
-      const badge = document.getElementById('status-badge');
+      const dot = document.getElementById('status-dot');
       if (!navigator.onLine) {
-        badge.textContent = "Оффлайн";
-        badge.className = "status";
+        dot.className = "status-dot";
         return;
       }
 
@@ -227,45 +778,51 @@
       const readFileName = config.role === 'armenia' ? 'russia.json' : 'armenia.json';
 
       try {
-        // Создаем папку в приложении/диске
-        await fetch(`https://cloud-api.yandex.net/v1/disk/resources?path=app:/RelayChat`, {
-          method: 'PUT',
-          headers: { 'Authorization': `OAuth ${config.token}` }
-        }).catch(() => {});
-
-        // 1. Загрузка исходящих
-        const allMsgs = await getAllMessagesFromDB();
+        const allMsgs = await getAllFromDB();
         const myMsgs = allMsgs.filter(m => m.sender === config.role);
-        const encryptedData = await encrypt(JSON.stringify(myMsgs));
         
-        const ok = await uploadFile(`app:/RelayChat/${sendFileName}`, { payload: encryptedData });
-        if (!ok) throw new Error("Не удалось записать файл в Яндекс");
+        const incomingMsgsLocal = allMsgs.filter(m => m.sender !== config.role);
+        const lastReadTimestamp = incomingMsgsLocal.length > 0 
+          ? Math.max(...incomingMsgsLocal.map(m => Number(m.timestamp))) 
+          : Date.now();
 
-        // 2. Скачивание входящих
+        const encryptedData = await encrypt(JSON.stringify({
+          messages: myMsgs,
+          lastReadTimestamp
+        }));
+
+        await uploadFile(`app:/RelayChat/${sendFileName}`, { payload: encryptedData });
+
         const remoteData = await downloadFile(`app:/RelayChat/${readFileName}`);
         if (remoteData && remoteData.payload) {
           const decryptedText = await decrypt(remoteData.payload);
           if (decryptedText) {
-            const incomingMsgs = JSON.parse(decryptedText);
-            let newCount = 0;
+            const parsedData = JSON.parse(decryptedText);
+            const incomingMsgs = parsedData.messages || [];
+            
+            if (parsedData.lastReadTimestamp) {
+              lastReadRemoteTimestamp = parsedData.lastReadTimestamp;
+            }
+
+            const currentRemoteIds = new Set(incomingMsgs.map(m => m.id));
+            
             for (const m of incomingMsgs) {
-              const existing = allMsgs.find(x => x.id === m.id);
-              if (!existing) {
-                await saveToDB(m);
-                newCount++;
+              await saveToDB(m);
+            }
+
+            for (const localMsg of incomingMsgsLocal) {
+              if (!currentRemoteIds.has(localMsg.id)) {
+                await deleteFromDB(localMsg.id);
               }
             }
-            if (newCount > 0) await renderMessages();
+
+            await renderMessages();
           }
         }
 
-        badge.textContent = "В сети";
-        badge.className = "status online";
-        logError(null);
+        dot.className = "status-dot online";
       } catch (err) {
-        badge.textContent = "Ошибка";
-        badge.className = "status error";
-        logError(err.message);
+        dot.className = "status-dot error";
       }
     }
 
@@ -273,10 +830,7 @@
       const res = await fetch(`https://cloud-api.yandex.net/v1/disk/resources/upload?path=${encodeURIComponent(path)}&overwrite=true`, {
         headers: { 'Authorization': `OAuth ${config.token}` }
       });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || `Ошибка получения ссылки (${res.status})`);
-      }
+      if (!res.ok) return false;
       const { href } = await res.json();
       const putRes = await fetch(href, {
         method: 'PUT',
