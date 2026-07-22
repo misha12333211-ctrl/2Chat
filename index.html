@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#121212">
+  <title>Relay Messenger</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    
+    body {
+      background: #0d0d0d;
+      color: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100dvh;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    #app-viewport {
+      width: 100%;
+      max-width: 800px;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: #121212;
+      position: relative;
+    }
+
+    @media (min-width: 768px) {
+      #app-viewport {
+        height: 90dvh;
+        max-height: 850px;
+        border-radius: 16px;
+        border: 1px solid #2a2a2a;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+        overflow: hidden;
+      }
+    }
+
+    header {
+      background: #1a1a1a;
+      padding: 14px 20px;
+      border-bottom: 1px solid #282828;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2;
+    }
+
+    header h3 {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      background: #262626;
+      color: #888;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .status.online { background: rgba(46, 125, 50, 0.2); color: #81c784; border: 1px solid rgba(76, 175, 80, 0.3); }
+    .status.error { background: rgba(183, 28, 28, 0.2); color: #e57373; border: 1px solid rgba(239, 83, 80, 0.3); }
+
+    #chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #121212;
+    }
+
+    /* Кастомный скроллбар */
+    #chat-box::-webkit-scrollbar { width: 6px; }
+    #chat-box::-webkit-scrollbar-track { background: transparent; }
+    #chat-box::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
+
+    .msg {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.45;
+      word-break: break-word;
+      animation: fadeIn 0.15s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg.my {
+      align-self: flex-end;
+      background: #2e7d32;
+      color: #ffffff;
+      border-bottom-right-radius: 2px;
+    }
+
+    .msg.their {
+      align-self: flex-start;
+      background: #1e1e1e;
+      color: #e0e0e0;
+      border: 1px solid #2a2a2a;
+      border-bottom-left-radius: 2px;
+    }
+
+    .msg .time {
+      font-size: 10px;
+      opacity: 0.65;
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    footer {
+      padding: 14px 16px;
+      /* Автоматический безопасный отступ снизу для мобилок + запас */
+      padding-bottom: calc(16px + env(safe-area-inset-bottom, 12px));
+      background: #1a1a1a;
+      display: flex;
+      gap: 10px;
+      border-top: 1px solid #282828;
+    }
+
+    input[type="text"], input[type="password"], select {
+      background: #0f0f0f;
+      border: 1px solid #2c2c2c;
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 10px;
+      outline: none;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus, input[type="password"]:focus, select:focus {
+      border-color: #2e7d32;
+    }
+
+    footer input[type="text"] { flex: 1; }
+
+    button {
+      background: #2e7d32;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    button:hover { background: #338a36; }
+    button:active { opacity: 0.8; }
+
+    .btn-secondary {
+      background: #262626;
+      color: #ccc;
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+    .btn-secondary:hover { background: #333; }
+
+    #settings {
+      position: absolute;
+      inset: 0;
+      background: #121212;
+      padding: 24px;
+      padding-bottom: calc(24px + env(safe-area-inset-bottom, 12px));
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 10;
+      overflow-y: auto;
+    }
+
+    #settings h2 { font-size: 18px; margin-bottom: 4px; }
+    #settings label { font-size: 12px; color: #888; margin-top: 4px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <div id="app-viewport">
+    <!-- Экран настроек -->
+    <div id="settings">
+      <h2>⚙️ Настройки чата</h2>
+      <p style="font-size: 12px; color: #888; margin-bottom: 8px;">Данные подключения сохранены по умолчанию.</p>
+      
+      <label>JSONBin Master Key:</label>
+      <input type="password" id="key-input" value="$2a$10$nYenFw1r7ThYJ5PUqLd.WuLal8KlHUi9RQ6vmKqaljNcdZNl4JJVG" autocomplete="off">
+      
+      <label>Bin ID Армении:</label>
+      <input type="text" id="bin-armenia-input" value="6a6024f9f5f4af5e29aef40e" autocomplete="off">
+
+      <label>Bin ID России:</label>
+      <input type="text" id="bin-russia-input" value="6a60250bda38895dfe7d7855" autocomplete="off">
+
+      <label>Пароль для шифрования сообщений:</label>
+      <input type="password" id="secret-input" placeholder="Введите секретный пароль" autocomplete="off">
+      
+      <label>Ваше текущее местоположение:</label>
+      <select id="role-select">
+        <option value="armenia">Я в Армении (Пишу в Bin Армении)</option>
+        <option value="russia">Я в России (Пишу в Bin России)</option>
+      </select>
+
+      <button onclick="saveSettings()" style="margin-top: 12px;">Сохранить и войти</button>
+    </div>
+
+    <!-- Интерфейс чата -->
+    <header>
+      <h3>💬 Relay Messenger</h3>
+      <div class="header-actions">
+        <button onclick="openSettings()" class="btn-secondary">⚙️</button>
+        <span id="status-badge" class="status">Оффлайн</span>
+      </div>
+    </header>
+
+    <div id="chat-box"></div>
+
+    <footer>
+      <input type="text" id="msg-input" placeholder="Введите сообщение..." onkeydown="if(event.key==='Enter') sendMsg()">
+      <button onclick="sendMsg()">Отправить</button>
+    </footer>
+  </div>
+
+  <script>
+    const DEFAULT_KEY = "$2a$10$nYenFw1r7ThYJ5PUqLd.WuLal8KlHUi9RQ6vmKqaljNcdZNl4JJVG";
+    let config = JSON.parse(localStorage.getItem('chat_cfg_jb_v4') || '{}');
+    let db, cryptoKey;
+
+    // --- 1. Inline PWA Setup ---
+    function setupPWA() {
+      const manifestData = {
+        short_name: "RelayChat",
+        name: "Relay Offline Messenger",
+        start_url: "./",
+        background_color: "#121212",
+        theme_color: "#121212",
+        display: "standalone"
+      };
+      const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+      const manifestLink = document.createElement('link');
+      manifestLink.rel = 'manifest';
+      manifestLink.href = URL.createObjectURL(manifestBlob);
+      document.head.appendChild(manifestLink);
+
+      if ('serviceWorker' in navigator) {
+        const swCode = `
+          const CACHE_NAME = 'relay-pwa-v5';
+          self.addEventListener('install', e => {
+            e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(['./'])));
+            self.skipWaiting();
+          });
+          self.addEventListener('activate', e => self.clients.claim());
+          self.addEventListener('fetch', e => {
+            if (e.request.url.includes('jsonbin.io')) return;
+            e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+          });
+        `;
+        const swBlob = new Blob([swCode], { type: 'text/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+      }
+    }
+
+    // --- 2. IndexedDB ---
+    const request = indexedDB.open("OfflineChatDB_JB_v4", 1);
+    request.onupgradeneeded = e => {
+      db = e.target.result;
+      if (!db.objectStoreNames.contains("messages")) {
+        db.createObjectStore("messages", { keyPath: "id" });
+      }
+    };
+    request.onsuccess = e => {
+      db = e.target.result;
+      setupPWA();
+      if (config.secret) {
+        initApp();
+      } else {
+        openSettings();
+      }
+    };
+
+    function openSettings() {
+      document.getElementById('key-input').value = config.apiKey || DEFAULT_KEY;
+      document.getElementById('bin-armenia-input').value = config.binArmenia || "6a6024f9f5f4af5e29aef40e";
+      document.getElementById('bin-russia-input').value = config.binRussia || "6a60250bda38895dfe7d7855";
+      if (config.secret) document.getElementById('secret-input').value = config.secret;
+      if (config.role) document.getElementById('role-select').value = config.role;
+      document.getElementById('settings').classList.remove('hidden');
+    }
+
+    function saveSettings() {
+      const apiKey = document.getElementById('key-input').value.trim() || DEFAULT_KEY;
+      const binArmenia = document.getElementById('bin-armenia-input').value.trim();
+      const binRussia = document.getElementById('bin-russia-input').value.trim();
+      const secret = document.getElementById('secret-input').value.trim();
+      const role = document.getElementById('role-select').value;
+
+      if (!secret) {
+        alert("Укажите пароль чата для шифрования!");
+        return;
+      }
+
+      config = { apiKey, binArmenia, binRussia, secret, role };
+      localStorage.setItem('chat_cfg_jb_v4', JSON.stringify(config));
+      initApp();
+    }
+
+    async function initApp() {
+      document.getElementById('settings').classList.add('hidden');
+      try {
+        cryptoKey = await deriveKey(config.secret);
+      } catch (e) {
+        return;
+      }
+      await renderMessages();
+      syncWithJSONBin();
+      if (window.syncInterval) clearInterval(window.syncInterval);
+      window.syncInterval = setInterval(syncWithJSONBin, 4000);
+    }
+
+    // --- 3. Шифрование ---
+    async function deriveKey(secret) {
+      const enc = new TextEncoder();
+      const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(secret), "PBKDF2", false, ["deriveKey"]);
+      return crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt: enc.encode("jsonbin_salt_2026_v4"), iterations: 50000, hash: "SHA-256" },
+        keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
+      );
+    }
+
+    async function encrypt(text) {
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const encoded = new TextEncoder().encode(text);
+      const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, cryptoKey, encoded);
+      return { iv: Array.from(iv), data: Array.from(new Uint8Array(ciphertext)) };
+    }
+
+    async function decrypt(encrypted) {
+      try {
+        const decrypted = await crypto.subtle.decrypt(
+          { name: "AES-GCM", iv: new Uint8Array(encrypted.iv) },
+          cryptoKey,
+          new Uint8Array(encrypted.data)
+        );
+        return new TextDecoder().decode(decrypted);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function getAllMessagesFromDB() {
+      return new Promise((resolve) => {
+        if (!db) return resolve([]);
+        const tx = db.transaction("messages", "readonly");
+        const store = tx.objectStore("messages");
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+      });
+    }
+
+    function saveToDB(msg) {
+      return new Promise((resolve) => {
+        const tx = db.transaction("messages", "readwrite");
+        const store = tx.objectStore("messages");
+        store.put(msg);
+        tx.oncomplete = () => resolve();
+      });
+    }
+
+    // --- 4. Чат ---
+    async function sendMsg() {
+      const input = document.getElementById('msg-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const msg = { 
+        id: Date.now().toString(), 
+        sender: config.role, 
+        text, 
+        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) 
+      };
+
+      await saveToDB(msg);
+      input.value = '';
+      await renderMessages();
+      syncWithJSONBin();
+    }
+
+    async function renderMessages() {
+      const messages = await getAllMessagesFromDB();
+      const box = document.getElementById('chat-box');
+      box.innerHTML = '';
+
+      messages.sort((a, b) => Number(a.id) - Number(b.id)).forEach(m => {
+        const div = document.createElement('div');
+        div.className = `msg ${m.sender === config.role ? 'my' : 'their'}`;
+
+        const textNode = document.createTextNode(m.text);
+        const timeDiv = document.createElement('div');
+        timeDiv.className = 'time';
+        timeDiv.textContent = m.time;
+
+        div.appendChild(textNode);
+        div.appendChild(timeDiv);
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
+    }
+
+    // --- 5. Синхронизация ---
+    async function syncWithJSONBin() {
+      const badge = document.getElementById('status-badge');
+      if (!navigator.onLine) {
+        badge.textContent = "Оффлайн";
+        badge.className = "status";
+        return;
+      }
+
+      const sendBinId = config.role === 'armenia' ? config.binArmenia : config.binRussia;
+      const readBinId = config.role === 'armenia' ? config.binRussia : config.binArmenia;
+
+      try {
+        const allMsgs = await getAllMessagesFromDB();
+        const myMsgs = allMsgs.filter(m => m.sender === config.role);
+
+        // 1. Отправка сообщений
+        const encryptedData = await encrypt(JSON.stringify(myMsgs));
+        const payload = {
+          status: "active",
+          updatedAt: Date.now(),
+          payload: encryptedData
+        };
+
+        await writeBin(sendBinId, payload);
+
+        // 2. Чтение входящих сообщений
+        const remoteRecord = await readBin(readBinId);
+        if (remoteRecord && remoteRecord.payload && remoteRecord.payload.iv) {
+          const decryptedText = await decrypt(remoteRecord.payload);
+          if (decryptedText) {
+            const incomingMsgs = JSON.parse(decryptedText);
+            let newCount = 0;
+            for (const m of incomingMsgs) {
+              const existing = allMsgs.find(x => x.id === m.id);
+              if (!existing) {
+                await saveToDB(m);
+                newCount++;
+              }
+            }
+            if (newCount > 0) {
+              await renderMessages();
+            }
+          }
+        }
+
+        badge.textContent = "В сети";
+        badge.className = "status online";
+      } catch (err) {
+        badge.textContent = "Ошибка сети";
+        badge.className = "status error";
+      }
+    }
+
+    async function writeBin(binId, payload) {
+      const url = `https://api.jsonbin.io/v3/b/${binId}`;
+      try {
+        const res = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': config.apiKey || DEFAULT_KEY
+          },
+          body: JSON.stringify(payload)
+        });
+        return res.ok;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    async function readBin(binId) {
+      try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+          headers: { 'X-Master-Key': config.apiKey || DEFAULT_KEY }
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.record;
+      } catch (e) {
+        return null;
+      }
+    }
+  </script>
+</body>
+</html>
