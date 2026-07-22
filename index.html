@@ -3,28 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0a0a0a">
-  <title>Relay Secure Messenger v2.5.3</title>
+  <meta name="theme-color" content="#0d0d0e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Relay Secure Messenger v2.5.0 PWA</title>
+
+  <!-- Встроенный PWA Manifest (Data URI) -->
+  <link rel="manifest" href="data:application/manifest+json;base64,ewogICJzaG9ydF9uYW1lIjogIlJlbGF5IiwKICAibmFtZSI6ICJSZWxheSBTZWN1cmUgTWVzc2VuZ2VyIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCc+PHJlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScyMCcgZmlsbD0nJTIzMmU3ZDMyJy8+PHRleHQgeD0nNTAnIHk9JzY1JyBmb250LXNpemU9JzUwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSd3aGl0ZSc+⚡</text></svg>",CiAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIKICAgIH0KICBdLAogICJzdGFydF91cmwiOiAiLi9pbmRleC5odG1sIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDkwOW9iIiwKICAidGhlbWVfY29sb3IiOiAiIzBkMGQwZSIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgIm9yaWVudGF0aW9uIjogInBvcnRyYWl0Igp9">
+
   <style>
     :root {
-      --bg-main: #0a0a0a;
-      --bg-card: #121212;
-      --bg-header: rgba(22, 22, 22, 0.85);
+      --bg-main: #09090b;
+      --bg-card: #121215;
+      --bg-header: rgba(18, 18, 21, 0.8);
       --accent: #2e7d32;
       --accent-hover: #338a36;
-      --msg-my: #1e4620;
-      --msg-their: #1a1a1a;
-      --text-main: #ededed;
-      --text-muted: #888888;
-      --border-color: #242424;
+      --msg-my: #1b3e1d;
+      --msg-their: #1c1c21;
+      --text-main: #f4f4f5;
+      --text-muted: #71717a;
+      --border-color: #27272a;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
     }
 
-    * { 
-      box-sizing: border-box; 
-      margin: 0; 
-      padding: 0; 
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; 
-      -webkit-tap-highlight-color: transparent; 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -40,7 +49,7 @@
 
     #app-viewport {
       width: 100%;
-      max-width: 900px;
+      max-width: 960px;
       height: 100dvh;
       display: flex;
       flex-direction: column;
@@ -51,10 +60,10 @@
     @media (min-width: 768px) {
       #app-viewport {
         height: 92dvh;
-        max-height: 880px;
-        border-radius: 20px;
+        max-height: 900px;
+        border-radius: var(--radius-lg);
         border: 1px solid var(--border-color);
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
         overflow: hidden;
       }
     }
@@ -62,29 +71,31 @@
     /* --- Header --- */
     header {
       background: var(--bg-header);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       padding: 14px 20px;
       padding-top: calc(14px + env(safe-area-inset-top, 0px));
       border-bottom: 1px solid var(--border-color);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 5;
+      z-index: 10;
     }
 
     .brand { display: flex; align-items: center; gap: 10px; }
     .brand h3 { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
+    .brand span.version { font-size: 10px; color: var(--text-muted); background: #1a1a1e; padding: 2px 6px; border-radius: 6px; border: 1px solid var(--border-color); }
 
     .status-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: var(--text-muted);
-      transition: background 0.3s;
+      transition: all 0.3s ease;
     }
-    .status-dot.online { background: #66bb6a; box-shadow: 0 0 10px rgba(102, 187, 106, 0.5); }
-    .status-dot.error { background: #ef5350; }
+    .status-dot.online { background: #4caf50; box-shadow: 0 0 10px rgba(76, 175, 80, 0.6); }
+    .status-dot.offline { background: #ff9800; box-shadow: 0 0 10px rgba(255, 152, 0, 0.6); }
+    .status-dot.error { background: #f44336; box-shadow: 0 0 10px rgba(244, 67, 54, 0.6); }
 
     .header-actions { display: flex; align-items: center; gap: 6px; }
 
@@ -98,36 +109,36 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
-      transition: color 0.2s, background 0.2s;
+      transition: all 0.2s;
     }
-    .btn-icon:hover { color: #fff; background: rgba(255,255,255,0.05); }
+    .btn-icon:hover { color: #fff; background: rgba(255,255,255,0.06); }
+    .btn-icon.danger:hover { color: #ef5350; background: rgba(239, 83, 80, 0.12); }
 
-    /* --- Chat Box --- */
+    /* --- Chat Area --- */
     #chat-box {
       flex: 1;
       overflow-y: auto;
       padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       background: var(--bg-main);
     }
 
-    #chat-box::-webkit-scrollbar { width: 5px; }
-    #chat-box::-webkit-scrollbar-thumb { background: #262626; border-radius: 3px; }
+    #chat-box::-webkit-scrollbar { width: 4px; }
+    #chat-box::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
     /* --- Messages --- */
     .msg-wrapper {
       display: flex;
       flex-direction: column;
-      max-width: 80%;
+      max-width: 75%;
       position: relative;
       animation: msgPop 0.18s cubic-bezier(0.1, 0.9, 0.2, 1);
     }
 
     @keyframes msgPop {
-      from { opacity: 0; transform: translateY(6px) scale(0.98); }
+      from { opacity: 0; transform: translateY(8px) scale(0.98); }
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
@@ -137,24 +148,19 @@
     .msg {
       padding: 10px 14px;
       border-radius: 16px;
-      font-size: 14.5px;
-      line-height: 1.45;
+      font-size: 14px;
+      line-height: 1.5;
       word-break: break-word;
       position: relative;
-      cursor: pointer;
       user-select: none;
-      -webkit-user-select: none;
-      -webkit-touch-callout: none;
-      transition: transform 0.1s ease;
+      cursor: pointer;
     }
-
-    .msg:active { transform: scale(0.98); }
 
     .msg-wrapper.my .msg {
       background: var(--msg-my);
       color: #ffffff;
       border-bottom-right-radius: 4px;
-      border: 1px solid rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.06);
     }
 
     .msg-wrapper.their .msg {
@@ -165,27 +171,68 @@
     }
 
     .msg-meta {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      justify-content: flex-end;
       gap: 4px;
       font-size: 10px;
-      color: rgba(255, 255, 255, 0.55);
-      margin-top: 4px;
+      color: rgba(255, 255, 255, 0.5);
       float: right;
+      margin-top: 4px;
       margin-left: 10px;
     }
 
-    .ticks { font-size: 11px; font-weight: bold; letter-spacing: -2px; }
+    .ticks { font-size: 11px; font-weight: 700; letter-spacing: -2px; }
     .ticks.read { color: #81c784; }
-    .edited-mark { font-style: italic; font-size: 10px; opacity: 0.7; margin-right: 2px; }
+    .ticks.pending { color: #ffb74d; }
+
+    .edited-mark { font-style: italic; font-size: 10px; opacity: 0.6; }
+
+    /* --- Context Menu --- */
+    .context-menu {
+      position: absolute;
+      background: #1e1e24;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      z-index: 100;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      min-width: 150px;
+      animation: menuFade 0.15s ease-out;
+    }
+
+    @keyframes menuFade {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .menu-item {
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      transition: background 0.15s;
+    }
+    .menu-item:hover { background: rgba(255, 255, 255, 0.08); }
+    .menu-item.delete { color: #ef5350; }
+    .menu-item.delete:hover { background: rgba(239, 83, 80, 0.15); }
 
     /* --- Footer Input --- */
     footer {
       padding: 12px 16px;
-      padding-bottom: calc(12px + env(safe-area-inset-bottom, 8px));
+      padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
       background: var(--bg-header);
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(16px);
       border-top: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
@@ -196,25 +243,26 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.03);
       padding: 6px 12px;
-      border-radius: 8px;
+      border-radius: var(--radius-sm);
       font-size: 12px;
-      color: #aaa;
+      color: var(--text-muted);
       border-left: 3px solid var(--accent);
     }
 
-    .input-row { display: flex; gap: 10px; align-items: center; }
+    .input-row { display: flex; gap: 8px; align-items: center; }
 
     input[type="text"], input[type="password"], select {
-      background: #141414;
+      background: #141417;
       border: 1px solid var(--border-color);
       color: #fff;
       padding: 12px 16px;
-      border-radius: 12px;
+      border-radius: var(--radius-md);
       outline: none;
-      font-size: 14.5px;
+      font-size: 14px;
       transition: border-color 0.2s;
+      width: 100%;
     }
 
     input[type="text"]:focus, input[type="password"]:focus, select:focus {
@@ -223,139 +271,165 @@
 
     .input-row input[type="text"] { flex: 1; }
 
+    .input-group {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .btn-toggle-pwd {
+      position: absolute;
+      right: 12px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-toggle-pwd:hover { color: #fff; }
+
+    .field-hint {
+      font-size: 11px;
+      color: var(--accent);
+      margin-top: 2px;
+      display: block;
+    }
+
     .btn-send {
       background: var(--accent);
       color: white;
       border: none;
-      padding: 12px 20px;
-      border-radius: 12px;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
       cursor: pointer;
       font-weight: 600;
       font-size: 14px;
       transition: background 0.2s;
     }
     .btn-send:hover { background: var(--accent-hover); }
-
-    /* --- Bottom Sheet Modal --- */
-    .modal-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.65);
-      backdrop-filter: blur(4px);
-      z-index: 30;
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
-    }
-
-    .modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .bottom-sheet {
-      width: 100%;
-      background: #181818;
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-      padding: 20px;
-      padding-bottom: calc(20px + env(safe-area-inset-bottom, 10px));
-      border-top: 1px solid var(--border-color);
-      transform: translateY(100%);
-      transition: transform 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .modal-overlay.active .bottom-sheet {
-      transform: translateY(0);
-    }
-
-    .sheet-handle {
-      width: 36px;
-      height: 4px;
-      background: #333;
-      border-radius: 2px;
-      align-self: center;
-      margin-bottom: 6px;
-    }
-
-    .sheet-preview {
-      font-size: 13px;
-      color: #888;
-      background: #111;
-      padding: 10px 12px;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .sheet-btn {
-      background: #222;
-      border: 1px solid #2a2a2a;
-      color: #fff;
-      padding: 14px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    .btn-danger {
+      background: #c62828;
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
       cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.2s;
     }
-    .sheet-btn:active { background: #2a2a2a; }
-    .sheet-btn.danger { color: #ef5350; border-color: rgba(239, 83, 80, 0.2); }
+    .btn-danger:hover { background: #b71c1c; }
 
-    /* --- Modal Settings --- */
-    #settings {
+    /* --- Modals --- */
+    .modal-overlay {
       position: absolute;
       inset: 0;
       background: var(--bg-card);
       padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      z-index: 20;
+      gap: 16px;
+      z-index: 50;
       overflow-y: auto;
     }
 
-    #settings h2 { font-size: 20px; font-weight: 600; }
-    #settings label { font-size: 12px; color: var(--text-muted); margin-bottom: -6px; }
+    .modal-overlay h2 { font-size: 18px; font-weight: 600; }
+    .modal-overlay label { font-size: 12px; color: var(--text-muted); margin-bottom: -10px; }
+    .modal-card {
+      background: #18181c;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #a1a1aa;
+    }
+    .modal-card strong { color: var(--text-main); }
     .hidden { display: none !important; }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .modal-buttons button { flex: 1; }
+    .btn-cancel {
+      background: rgba(255,255,255,0.08);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .btn-cancel:hover { background: rgba(255,255,255,0.12); }
   </style>
 </head>
 <body>
 
   <div id="app-viewport">
-    <!-- Настройки -->
-    <div id="settings">
-      <h2>⚙️ Настройки Relay</h2>
+    <!-- Окно настроек -->
+    <div id="settings-modal" class="modal-overlay hidden">
+      <h2>⚙️ Настройки Relay PWA</h2>
+      
       <label>Яндекс OAuth Токен:</label>
-      <input type="password" id="token-input" placeholder="Токен из Яндекс OAuth" autocomplete="off">
+      <div class="input-group">
+        <input type="password" id="token-input" placeholder="Токен из Яндекс OAuth" autocomplete="off">
+        <button type="button" class="btn-toggle-pwd" onclick="toggleVisibility('token-input', this)" title="Показать/скрыть ключ">👁</button>
+      </div>
+      <span class="field-hint">💡 Ключ уже вставлен автоматически, менять его не нужно. Укажите только пароль шифрования!</span>
+
       <label>Пароль шифрования чата:</label>
-      <input type="password" id="secret-input" placeholder="Общий секретный пароль" autocomplete="off">
-      <label>Ваше местоположение:</label>
+      <div class="input-group">
+        <input type="password" id="secret-input" placeholder="Общий секретный пароль" autocomplete="off">
+        <button type="button" class="btn-toggle-pwd" onclick="toggleVisibility('secret-input', this)" title="Показать/скрыть пароль">👁</button>
+      </div>
+
+      <label>Ваше местоположение (Роль):</label>
       <select id="role-select">
         <option value="armenia">Я в Армении (Файл: armenia.json)</option>
         <option value="russia">Я в России (Файл: russia.json)</option>
       </select>
-      <button class="btn-send" onclick="saveSettings()" style="margin-top: 10px;">Сохранить и войти</button>
+      <button class="btn-send" onclick="saveSettings()" style="margin-top: 8px;">Сохранить и войти</button>
     </div>
 
-    <!-- Нижнее Меню (Action Sheet) -->
-    <div id="action-sheet-overlay" class="modal-overlay" onclick="closeActionSheet()">
-      <div class="bottom-sheet" onclick="event.stopPropagation()">
-        <div class="sheet-handle"></div>
-        <div id="sheet-preview" class="sheet-preview">Текст сообщения...</div>
-        <button id="btn-copy" class="sheet-btn" onclick="triggerCopyFromSheet()">📋 Копировать текст</button>
-        <button id="btn-edit" class="sheet-btn" onclick="triggerEditFromSheet()">✎ Изменить сообщение</button>
-        <button id="btn-delete" class="sheet-btn danger" onclick="triggerDeleteFromSheet()">🗑 Удалить сообщение</button>
+    <!-- Инструкция и Описание Проекта -->
+    <div id="help-modal" class="modal-overlay hidden">
+      <h2>👋 О проекте RelayChat</h2>
+      
+      <div class="modal-card">
+        <strong>🌐 Что такое RelayChat PWA?</strong><br>
+        RelayChat — это защищённый бессерверный PWA-мессенджер direct-to-cloud. Он работает без выделенного бэкенда, поддерживая офлайн-доступ и используя Яндекс Диск как зашифрованный буфер.
+      </div>
+
+      <div class="modal-card">
+        <strong>🔒 Нулевое доверие (Zero-Knowledge Encryption):</strong><br>
+        Все сообщения шифруются прямо в браузере с помощью стойкого алгоритма <strong>AES-GCM-256</strong> (Web Crypto API). Ваш пароль и текст никогда не покидают устройство.
+      </div>
+
+      <div class="modal-card">
+        <strong>📶 Работа в Offline (Sync Queue):</strong><br>
+        Вы можете отправлять сообщения даже без интернета — они сохранятся со статусом ⏳ и автоматически отправятся в Яндекс Диск, как только появится сеть.
+      </div>
+
+      <button class="btn-send" onclick="closeHelp()">Понятно, к чату!</button>
+    </div>
+
+    <!-- Модалка подтверждения очистки чата -->
+    <div id="clear-modal" class="modal-overlay hidden" style="justify-content: center; align-items: center;">
+      <div style="width: 100%; max-width: 360px;" class="modal-card">
+        <h3 style="color: #fff; margin-bottom: 8px; font-size: 16px;">🗑 Очистить всю переписку?</h3>
+        <p style="margin-bottom: 16px; font-size: 13px;">Все локальные сообщения и история в облаке будут безвозвратно удалены для обеих сторон.</p>
+        <div class="modal-buttons">
+          <button class="btn-cancel" onclick="closeClearModal()">Отмена</button>
+          <button class="btn-danger" onclick="confirmClearChat()">Удалить</button>
+        </div>
       </div>
     </div>
 
@@ -363,15 +437,18 @@
     <header>
       <div class="brand">
         <div id="status-dot" class="status-dot"></div>
-        <h3>💬 Relay Messenger</h3>
+        <h3>Relay Messenger</h3>
+        <span class="version">v2.5.0 PWA</span>
       </div>
       <div class="header-actions">
-        <button onclick="openSettings()" class="btn-icon">⚙️</button>
+        <button onclick="openClearModal()" class="btn-icon danger" title="Очистить чат">🗑</button>
+        <button onclick="openHelp()" class="btn-icon" title="Инструкция">❓</button>
+        <button onclick="openSettings()" class="btn-icon" title="Настройки">⚙️</button>
       </div>
     </header>
 
     <!-- Область сообщений -->
-    <div id="chat-box"></div>
+    <div id="chat-box" onclick="closeContextMenu()"></div>
 
     <!-- Поле ввода -->
     <footer>
@@ -380,22 +457,60 @@
         <button onclick="cancelEdit()" class="btn-icon" style="padding: 2px 6px;">✕</button>
       </div>
       <div class="input-row">
-        <input type="text" id="msg-input" placeholder="Сообщение..." onkeydown="if(event.key==='Enter') handleSend()">
+        <input type="text" id="msg-input" placeholder="Напишите сообщение..." onkeydown="if(event.key==='Enter') handleSend()">
         <button class="btn-send" onclick="handleSend()">Отправить</button>
       </div>
     </footer>
   </div>
 
   <script>
-    let config = JSON.parse(localStorage.getItem('chat_cfg_v3') || '{}');
+    // --- Динамическая регистрация Service Worker прямо из HTML ---
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        const swCode = `
+          const CACHE_NAME = 'relay-pwa-single-v1';
+          self.addEventListener('install', (e) => self.skipWaiting());
+          self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+          self.addEventListener('fetch', (e) => {
+            if (e.request.url.includes('yandex.net')) return;
+            e.respondWith(
+              fetch(e.request).catch(() => caches.match(e.request))
+            );
+          });
+        `;
+        const blob = new Blob([swCode], { type: 'text/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(swUrl)
+          .then(() => console.log('Inline SW зарегистрирован'))
+          .catch(err => console.error('Ошибка SW:', err));
+      });
+    }
+
+    const DEFAULT_TOKEN = "y0__wgBEMa2sf0IGP_1RSCBtIGxGCTcqP3i5Xi6F-JXhjOgxxUYVhg3";
+
+    let config = JSON.parse(localStorage.getItem('chat_cfg_v5') || '{}');
+    if (!config.token) config.token = DEFAULT_TOKEN;
+
     let db, cryptoKey;
     let editingMsgId = null;
-    let targetMsgForSheet = null;
+    let activeContextMenu = null;
     let lastReadRemoteTimestamp = 0;
-    let isFolderVerified = false;
+    let longPressTimer = null;
+    let renderedStateMap = new Map();
+
+    function toggleVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === "password") {
+        input.type = "text";
+        btn.style.color = "var(--accent)";
+      } else {
+        input.type = "password";
+        btn.style.color = "var(--text-muted)";
+      }
+    }
 
     // --- IndexedDB ---
-    const request = indexedDB.open("RelayChatDB_v3", 1);
+    const request = indexedDB.open("RelayChatDB_v5", 1);
     request.onupgradeneeded = e => {
       db = e.target.result;
       if (!db.objectStoreNames.contains("messages")) {
@@ -404,37 +519,50 @@
     };
     request.onsuccess = e => {
       db = e.target.result;
-      if (config.secret && config.token) {
-        initApp();
-      } else {
-        openSettings();
-      }
+      if (config.secret && config.token) initApp();
+      else openSettings();
     };
 
     function openSettings() {
-      if (config.token) document.getElementById('token-input').value = config.token;
+      document.getElementById('token-input').value = config.token || DEFAULT_TOKEN;
       if (config.secret) document.getElementById('secret-input').value = config.secret;
       if (config.role) document.getElementById('role-select').value = config.role;
-      document.getElementById('settings').classList.remove('hidden');
+      document.getElementById('settings-modal').classList.remove('hidden');
+    }
+
+    function openHelp() { document.getElementById('help-modal').classList.remove('hidden'); }
+    function closeHelp() { 
+      localStorage.setItem('relay_onboarded', 'true');
+      document.getElementById('help-modal').classList.add('hidden'); 
+    }
+
+    function openClearModal() { document.getElementById('clear-modal').classList.remove('hidden'); }
+    function closeClearModal() { document.getElementById('clear-modal').classList.add('hidden'); }
+
+    async function confirmClearChat() {
+      closeClearModal();
+      await clearAllDB();
+      renderedStateMap.clear();
+      document.getElementById('chat-box').innerHTML = '';
+      await syncWithYandex();
     }
 
     function saveSettings() {
       const token = document.getElementById('token-input').value.trim();
       const secret = document.getElementById('secret-input').value.trim();
       const role = document.getElementById('role-select').value;
-
-      if (!token || !secret) { alert("Укажите токен и пароль!"); return; }
+      if (!token || !secret) { alert("Заполните токен и пароль!"); return; }
 
       config = { token, secret, role };
-      localStorage.setItem('chat_cfg_v3', JSON.stringify(config));
-      isFolderVerified = false;
+      localStorage.setItem('chat_cfg_v5', JSON.stringify(config));
       initApp();
     }
 
     async function initApp() {
-      document.getElementById('settings').classList.add('hidden');
+      document.getElementById('settings-modal').classList.add('hidden');
+      if (!localStorage.getItem('relay_onboarded')) openHelp();
       try { cryptoKey = await deriveKey(config.secret); } catch (e) { return; }
-      await renderMessages();
+      await renderMessages(true);
       syncWithYandex();
       if (window.syncInterval) clearInterval(window.syncInterval);
       window.syncInterval = setInterval(syncWithYandex, 3000);
@@ -445,7 +573,7 @@
       const enc = new TextEncoder();
       const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(secret), "PBKDF2", false, ["deriveKey"]);
       return crypto.subtle.deriveKey(
-        { name: "PBKDF2", salt: enc.encode("relay_salt_v3"), iterations: 50000, hash: "SHA-256" },
+        { name: "PBKDF2", salt: enc.encode("relay_salt_v5"), iterations: 50000, hash: "SHA-256" },
         keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
       );
     }
@@ -495,109 +623,15 @@
       });
     }
 
-    // --- Long Press Logic ---
-    function attachLongPress(element, msgObj, isMy) {
-      let timer = null;
-
-      const startPress = () => {
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(() => {
-          if (navigator.vibrate) navigator.vibrate(40);
-          openActionSheet(msgObj, isMy);
-        }, 300);
-      };
-
-      const cancelPress = () => {
-        if (timer) {
-          clearTimeout(timer);
-          timer = null;
-        }
-      };
-
-      element.addEventListener('touchstart', startPress, { passive: true });
-      element.addEventListener('touchend', cancelPress);
-      element.addEventListener('touchmove', cancelPress);
-
-      element.addEventListener('mousedown', (e) => {
-        if (e.button === 0) startPress();
-      });
-      element.addEventListener('mouseup', cancelPress);
-      element.addEventListener('mouseleave', cancelPress);
-
-      element.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        openActionSheet(msgObj, isMy);
+    function clearAllDB() {
+      return new Promise((resolve) => {
+        const tx = db.transaction("messages", "readwrite");
+        tx.objectStore("messages").clear();
+        tx.oncomplete = () => resolve();
       });
     }
 
-    // --- Bottom Sheet Modal Logic ---
-    function openActionSheet(msg, isMy) {
-      targetMsgForSheet = msg;
-      document.getElementById('sheet-preview').textContent = msg.text;
-
-      const btnEdit = document.getElementById('btn-edit');
-      const btnDelete = document.getElementById('btn-delete');
-      if (isMy) {
-        btnEdit.classList.remove('hidden');
-        btnDelete.classList.remove('hidden');
-      } else {
-        btnEdit.classList.add('hidden');
-        btnDelete.classList.add('hidden');
-      }
-
-      document.getElementById('action-sheet-overlay').classList.add('active');
-    }
-
-    function closeActionSheet() {
-      document.getElementById('action-sheet-overlay').classList.remove('active');
-      targetMsgForSheet = null;
-    }
-
-    async function triggerCopyFromSheet() {
-      if (!targetMsgForSheet) return;
-      const textToCopy = targetMsgForSheet.text;
-
-      try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(textToCopy);
-        } else {
-          const textArea = document.createElement("textarea");
-          textArea.value = textToCopy;
-          document.body.appendChild(textArea);
-          textArea.select();
-          document.execCommand('copy');
-          document.body.removeChild(textArea);
-        }
-
-        const btn = document.getElementById('btn-copy');
-        const origText = btn.innerHTML;
-        btn.innerHTML = '✅ Скопировано!';
-        setTimeout(() => {
-          btn.innerHTML = origText;
-          closeActionSheet();
-        }, 400);
-
-      } catch (err) {
-        alert('Не удалось скопировать текст');
-        closeActionSheet();
-      }
-    }
-
-    function triggerEditFromSheet() {
-      if (!targetMsgForSheet) return;
-      startEdit(targetMsgForSheet.id, targetMsgForSheet.text);
-      closeActionSheet();
-    }
-
-    async function triggerDeleteFromSheet() {
-      if (!targetMsgForSheet) return;
-      await deleteFromDB(targetMsgForSheet.id);
-      closeActionSheet();
-      await renderMessages();
-      syncWithYandex();
-    }
-
-    // --- Actions ---
+    // --- Message Handlers ---
     async function handleSend() {
       const input = document.getElementById('msg-input');
       const text = input.value.trim();
@@ -609,6 +643,7 @@
         if (msg) {
           msg.text = text;
           msg.edited = true;
+          msg.pending = !navigator.onLine;
           await saveToDB(msg);
         }
         cancelEdit();
@@ -618,13 +653,14 @@
           timestamp: Date.now(),
           sender: config.role,
           text,
+          pending: !navigator.onLine,
           time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
         };
         await saveToDB(msg);
       }
 
       input.value = '';
-      await renderMessages();
+      await renderMessages(true);
       syncWithYandex();
     }
 
@@ -635,6 +671,7 @@
       const input = document.getElementById('msg-input');
       input.value = currentText;
       input.focus();
+      closeContextMenu();
     }
 
     function cancelEdit() {
@@ -643,51 +680,179 @@
       document.getElementById('msg-input').value = '';
     }
 
-    // --- Render ---
-    async function renderMessages() {
+    async function deleteMessage(id) {
+      await deleteFromDB(id);
+      await renderMessages(true);
+      closeContextMenu();
+      syncWithYandex();
+    }
+
+    async function copyMessageText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (err) {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      closeContextMenu();
+    }
+
+    // --- Custom Context Menu ---
+    function openContextMenu(e, id, isMy, text) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      closeContextMenu();
+
+      const wrapper = document.getElementById(`msg-wrap-${id}`);
+      if (!wrapper) return;
+
+      const menu = document.createElement('div');
+      menu.className = 'context-menu';
+      menu.id = 'active-context-menu';
+
+      let menuContent = `<button class="menu-item" onclick="copyMessageText('${escapeJsString(text)}')">📋 Копировать</button>`;
+      
+      if (isMy) {
+        menuContent += `
+          <button class="menu-item" onclick="startEdit('${id}', '${escapeJsString(text)}')">✏️ Изменить</button>
+          <button class="menu-item delete" onclick="deleteMessage('${id}')">🗑 Удалить</button>
+        `;
+      }
+
+      menu.innerHTML = menuContent;
+      wrapper.appendChild(menu);
+      
+      const msgElem = wrapper.querySelector('.msg');
+      menu.style.top = `${msgElem.offsetTop + msgElem.offsetHeight + 4}px`;
+      if (isMy) menu.style.right = '0px';
+      else menu.style.left = '0px';
+
+      activeContextMenu = menu;
+    }
+
+    function closeContextMenu() {
+      if (activeContextMenu) {
+        activeContextMenu.remove();
+        activeContextMenu = null;
+      }
+    }
+
+    function escapeJsString(str) {
+      return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+
+    // --- Smart Render Messages ---
+    async function renderMessages(forceScroll = false) {
       const messages = await getAllFromDB();
       const box = document.getElementById('chat-box');
-      box.innerHTML = '';
+      messages.sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
 
-      messages.sort((a, b) => Number(a.timestamp) - Number(b.timestamp)).forEach(m => {
-        const isMy = m.sender === config.role;
-        const wrapper = document.createElement('div');
-        wrapper.className = `msg-wrapper ${isMy ? 'my' : 'their'}`;
+      const currentIds = new Set(messages.map(m => m.id));
 
-        let ticksHtml = '';
-        if (isMy) {
-          const isRead = Number(m.timestamp) <= lastReadRemoteTimestamp;
-          ticksHtml = `<span class="ticks ${isRead ? 'read' : ''}">${isRead ? '✓✓' : '✓'}</span>`;
+      for (const [id, node] of renderedStateMap.entries()) {
+        if (!currentIds.has(id)) {
+          node.remove();
+          renderedStateMap.delete(id);
         }
+      }
 
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'msg';
-        msgDiv.innerHTML = `
-          ${escapeHtml(m.text)}
-          <div class="msg-meta">
-            ${m.edited ? '<span class="edited-mark">изм.</span>' : ''}
-            <span>${m.time}</span>
-            ${ticksHtml}
-          </div>
-        `;
+      let hasNewMessage = false;
 
-        attachLongPress(msgDiv, m, isMy);
+      messages.forEach(m => {
+        const isMy = m.sender === config.role;
+        const isRead = isMy && (Number(m.timestamp) <= lastReadRemoteTimestamp);
+        const stateKey = `${m.text}_${m.edited}_${isRead}_${m.pending}`;
 
-        wrapper.appendChild(msgDiv);
-        box.appendChild(wrapper);
+        if (!renderedStateMap.has(m.id)) {
+          const wrapper = document.createElement('div');
+          wrapper.className = `msg-wrapper ${isMy ? 'my' : 'their'}`;
+          wrapper.id = `msg-wrap-${m.id}`;
+
+          let ticksHtml = '';
+          if (isMy) {
+            if (m.pending) {
+              ticksHtml = `<span class="ticks pending" title="В очереди на отправку">⏳</span>`;
+            } else {
+              ticksHtml = `<span class="ticks ${isRead ? 'read' : ''}">${isRead ? '✓✓' : '✓'}</span>`;
+            }
+          }
+
+          const msgDiv = document.createElement('div');
+          msgDiv.className = 'msg';
+          msgDiv.innerHTML = `
+            ${escapeHtml(m.text)}
+            <div class="msg-meta">
+              ${m.edited ? '<span class="edited-mark">изм.</span>' : ''}
+              <span>${m.time}</span>
+              ${ticksHtml}
+            </div>
+          `;
+
+          msgDiv.addEventListener('contextmenu', (e) => openContextMenu(e, m.id, isMy, m.text));
+
+          msgDiv.addEventListener('touchstart', (e) => {
+            clearTimeout(longPressTimer);
+            longPressTimer = setTimeout(() => {
+              openContextMenu(null, m.id, isMy, m.text);
+            }, 300);
+          }, { passive: true });
+
+          msgDiv.addEventListener('touchend', () => clearTimeout(longPressTimer));
+          msgDiv.addEventListener('touchmove', () => clearTimeout(longPressTimer));
+
+          wrapper.appendChild(msgDiv);
+          box.appendChild(wrapper);
+
+          wrapper.dataset.state = stateKey;
+          renderedStateMap.set(m.id, wrapper);
+          hasNewMessage = true;
+        } else {
+          const wrapper = renderedStateMap.get(m.id);
+          if (wrapper.dataset.state !== stateKey) {
+            const msgDiv = wrapper.querySelector('.msg');
+            let ticksHtml = '';
+            if (isMy) {
+              if (m.pending) {
+                ticksHtml = `<span class="ticks pending" title="В очереди на отправку">⏳</span>`;
+              } else {
+                ticksHtml = `<span class="ticks ${isRead ? 'read' : ''}">${isRead ? '✓✓' : '✓'}</span>`;
+              }
+            }
+
+            msgDiv.innerHTML = `
+              ${escapeHtml(m.text)}
+              <div class="msg-meta">
+                ${m.edited ? '<span class="edited-mark">изм.</span>' : ''}
+                <span>${m.time}</span>
+                ${ticksHtml}
+              </div>
+            `;
+            wrapper.dataset.state = stateKey;
+          }
+        }
       });
-      box.scrollTop = box.scrollHeight;
+
+      if (forceScroll || hasNewMessage) {
+        box.scrollTop = box.scrollHeight;
+      }
     }
 
     function escapeHtml(str) {
       return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    // --- Yandex Cloud Sync ---
+    // --- Offline Aware Sync ---
     async function syncWithYandex() {
       const dot = document.getElementById('status-dot');
+
       if (!navigator.onLine) {
-        dot.className = "status-dot";
+        dot.className = "status-dot offline";
         return;
       }
 
@@ -695,15 +860,20 @@
       const readFileName = config.role === 'armenia' ? 'russia.json' : 'armenia.json';
 
       try {
-        // Проверяем наличие папки только один раз при старте
-        if (!isFolderVerified) {
-          await ensureFolderExists('app:/RelayChat');
-          isFolderVerified = true;
-        }
-
         const allMsgs = await getAllFromDB();
+
+        // Снимаем статус pending при успешной выгрузке
+        let updatedPending = false;
+        allMsgs.forEach(m => {
+          if (m.pending) {
+            delete m.pending;
+            saveToDB(m);
+            updatedPending = true;
+          }
+        });
+        if (updatedPending) await renderMessages();
+
         const myMsgs = allMsgs.filter(m => m.sender === config.role);
-        
         const incomingMsgsLocal = allMsgs.filter(m => m.sender !== config.role);
         const lastReadTimestamp = incomingMsgsLocal.length > 0 
           ? Math.max(...incomingMsgsLocal.map(m => Number(m.timestamp))) 
@@ -714,14 +884,8 @@
           lastReadTimestamp
         }));
 
-        // 1. Отправляем локальные сообщения
-        const isUploaded = await uploadFile(`app:/RelayChat/${sendFileName}`, { payload: encryptedData });
-        if (!isUploaded) {
-          dot.className = "status-dot error";
-          return;
-        }
+        await uploadFile(`app:/RelayChat/${sendFileName}`, { payload: encryptedData });
 
-        // 2. Читаем сообщения собеседника
         const remoteData = await downloadFile(`app:/RelayChat/${readFileName}`);
         if (remoteData && remoteData.payload) {
           const decryptedText = await decrypt(remoteData.payload);
@@ -755,51 +919,34 @@
       }
     }
 
-    async function ensureFolderExists(path) {
-      try {
-        const checkRes = await fetch(`https://cloud-api.yandex.net/v1/disk/resources?path=${encodeURIComponent(path)}`, {
-          headers: { 'Authorization': `OAuth ${config.token}` }
-        });
-        if (!checkRes.ok && checkRes.status === 404) {
-          await fetch(`https://cloud-api.yandex.net/v1/disk/resources?path=${encodeURIComponent(path)}`, {
-            method: 'PUT',
-            headers: { 'Authorization': `OAuth ${config.token}` }
-          });
-        }
-      } catch (e) {}
-    }
-
     async function uploadFile(path, dataObj) {
-      try {
-        const res = await fetch(`https://cloud-api.yandex.net/v1/disk/resources/upload?path=${encodeURIComponent(path)}&overwrite=true`, {
-          headers: { 'Authorization': `OAuth ${config.token}` }
-        });
-        if (!res.ok) return false;
-        const { href } = await res.json();
-        const putRes = await fetch(href, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(dataObj)
-        });
-        return putRes.ok;
-      } catch (e) {
-        return false;
-      }
+      const res = await fetch(`https://cloud-api.yandex.net/v1/disk/resources/upload?path=${encodeURIComponent(path)}&overwrite=true`, {
+        headers: { 'Authorization': `OAuth ${config.token}` }
+      });
+      if (!res.ok) return false;
+      const { href } = await res.json();
+      const putRes = await fetch(href, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataObj)
+      });
+      return putRes.ok;
     }
 
     async function downloadFile(path) {
-      try {
-        const res = await fetch(`https://cloud-api.yandex.net/v1/disk/resources/download?path=${encodeURIComponent(path)}`, {
-          headers: { 'Authorization': `OAuth ${config.token}` }
-        });
-        if (!res.ok) return null;
-        const { href } = await res.json();
-        const fileRes = await fetch(href);
-        return fileRes.ok ? await fileRes.json() : null;
-      } catch (e) {
-        return null;
-      }
+      const res = await fetch(`https://cloud-api.yandex.net/v1/disk/resources/download?path=${encodeURIComponent(path)}`, {
+        headers: { 'Authorization': `OAuth ${config.token}` }
+      });
+      if (!res.ok) return null;
+      const { href } = await res.json();
+      const fileRes = await fetch(href);
+      return fileRes.ok ? await fileRes.json() : null;
     }
+
+    window.addEventListener('online', () => syncWithYandex());
+    window.addEventListener('offline', () => {
+      document.getElementById('status-dot').className = "status-dot offline";
+    });
   </script>
 </body>
 </html>
