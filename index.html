@@ -6,16 +6,14 @@
   <meta name="theme-color" content="#0d0d0e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Relay Secure Messenger v2.5.0 PWA</title>
-
-  <!-- Встроенный PWA Manifest (Data URI) -->
-  <link rel="manifest" href="data:application/manifest+json;base64,ewogICJzaG9ydF9uYW1lIjogIlJlbGF5IiwKICAibmFtZSI6ICJSZWxheSBTZWN1cmUgTWVzc2VuZ2VyIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCc+PHJlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScyMCcgZmlsbD0nJTIzMmU3ZDMyJy8+PHRleHQgeD0nNTAnIHk9JzY1JyBmb250LXNpemU9JzUwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSd3aGl0ZSc+⚡</text></svg>",CiAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIKICAgIH0KICBdLAogICJzdGFydF91cmwiOiAiLi9pbmRleC5odG1sIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDkwOW9iIiwKICAidGhlbWVfY29sb3IiOiAiIzBkMGQwZSIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgIm9yaWVudGF0aW9uIjogInBvcnRyYWl0Igp9">
+  <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Relay%20Chat%22%2C%22short_name%22%3A%22Relay%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2309090b%22%2C%22theme_color%22%3A%22%230d0d0e%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+  <title>Relay Direct Messenger v4.1</title>
 
   <style>
     :root {
       --bg-main: #09090b;
       --bg-card: #121215;
-      --bg-header: rgba(18, 18, 21, 0.8);
+      --bg-header: rgba(18, 18, 21, 0.85);
       --accent: #2e7d32;
       --accent-hover: #338a36;
       --msg-my: #1b3e1d;
@@ -68,7 +66,6 @@
       }
     }
 
-    /* --- Header --- */
     header {
       background: var(--bg-header);
       backdrop-filter: blur(16px);
@@ -83,8 +80,9 @@
     }
 
     .brand { display: flex; align-items: center; gap: 10px; }
-    .brand h3 { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
-    .brand span.version { font-size: 10px; color: var(--text-muted); background: #1a1a1e; padding: 2px 6px; border-radius: 6px; border: 1px solid var(--border-color); }
+    .brand-info { display: flex; flex-direction: column; }
+    .brand h3 { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+    .brand span.peer-status { font-size: 11px; color: var(--text-muted); }
 
     .status-dot {
       width: 8px;
@@ -114,7 +112,6 @@
     .btn-icon:hover { color: #fff; background: rgba(255,255,255,0.06); }
     .btn-icon.danger:hover { color: #ef5350; background: rgba(239, 83, 80, 0.12); }
 
-    /* --- Chat Area --- */
     #chat-box {
       flex: 1;
       overflow-y: auto;
@@ -128,11 +125,10 @@
     #chat-box::-webkit-scrollbar { width: 4px; }
     #chat-box::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
-    /* --- Messages --- */
     .msg-wrapper {
       display: flex;
       flex-direction: column;
-      max-width: 75%;
+      max-width: 78%;
       position: relative;
       animation: msgPop 0.18s cubic-bezier(0.1, 0.9, 0.2, 1);
     }
@@ -181,13 +177,22 @@
       margin-left: 10px;
     }
 
-    .ticks { font-size: 11px; font-weight: 700; letter-spacing: -2px; }
+    .ticks {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: -2px;
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .ticks:hover { background: rgba(255, 255, 255, 0.1); }
     .ticks.read { color: #81c784; }
+    .ticks.delivered { color: #b0bec5; }
     .ticks.pending { color: #ffb74d; }
 
     .edited-mark { font-style: italic; font-size: 10px; opacity: 0.6; }
 
-    /* --- Context Menu --- */
     .context-menu {
       position: absolute;
       background: #1e1e24;
@@ -227,7 +232,6 @@
     .menu-item.delete { color: #ef5350; }
     .menu-item.delete:hover { background: rgba(239, 83, 80, 0.15); }
 
-    /* --- Footer Input --- */
     footer {
       padding: 12px 16px;
       padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
@@ -253,7 +257,7 @@
 
     .input-row { display: flex; gap: 8px; align-items: center; }
 
-    input[type="text"], input[type="password"], select {
+    input[type="text"], input[type="password"] {
       background: #141417;
       border: 1px solid var(--border-color);
       color: #fff;
@@ -265,10 +269,7 @@
       width: 100%;
     }
 
-    input[type="text"]:focus, input[type="password"]:focus, select:focus {
-      border-color: var(--accent);
-    }
-
+    input[type="text"]:focus, input[type="password"]:focus { border-color: var(--accent); }
     .input-row input[type="text"] { flex: 1; }
 
     .input-group {
@@ -291,11 +292,10 @@
       align-items: center;
       justify-content: center;
     }
-    .btn-toggle-pwd:hover { color: #fff; }
 
     .field-hint {
       font-size: 11px;
-      color: var(--accent);
+      color: #81c784;
       margin-top: 2px;
       display: block;
     }
@@ -312,6 +312,7 @@
       transition: background 0.2s;
     }
     .btn-send:hover { background: var(--accent-hover); }
+
     .btn-danger {
       background: #c62828;
       color: white;
@@ -323,9 +324,7 @@
       font-size: 14px;
       transition: background 0.2s;
     }
-    .btn-danger:hover { background: #b71c1c; }
 
-    /* --- Modals --- */
     .modal-overlay {
       position: absolute;
       inset: 0;
@@ -340,11 +339,12 @@
 
     .modal-overlay h2 { font-size: 18px; font-weight: 600; }
     .modal-overlay label { font-size: 12px; color: var(--text-muted); margin-bottom: -10px; }
+
     .modal-card {
       background: #18181c;
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 14px;
+      padding: 16px;
       font-size: 13px;
       line-height: 1.5;
       color: #a1a1aa;
@@ -352,12 +352,9 @@
     .modal-card strong { color: var(--text-main); }
     .hidden { display: none !important; }
 
-    .modal-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
+    .modal-buttons { display: flex; gap: 10px; margin-top: 10px; }
     .modal-buttons button { flex: 1; }
+
     .btn-cancel {
       background: rgba(255,255,255,0.08);
       color: var(--text-main);
@@ -368,7 +365,52 @@
       font-weight: 600;
       font-size: 14px;
     }
-    .btn-cancel:hover { background: rgba(255,255,255,0.12); }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      background: #1e1e24;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    .rule-box {
+      background: rgba(46, 125, 50, 0.12);
+      border: 1px solid rgba(46, 125, 50, 0.4);
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      color: #a5d6a7;
+      margin-top: 6px;
+    }
+
+    .tech-note {
+      background: rgba(255, 255, 255, 0.04);
+      border-left: 3px solid #ffb74d;
+      padding: 8px 10px;
+      margin: 8px 0;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+
+    .code-chip {
+      background: #000;
+      color: #81c784;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 11px;
+    }
+
+    a.app-link {
+      color: #81c784;
+      text-decoration: underline;
+      word-break: break-all;
+    }
+    a.app-link:hover {
+      color: #a5d6a7;
+    }
   </style>
 </head>
 <body>
@@ -376,56 +418,112 @@
   <div id="app-viewport">
     <!-- Окно настроек -->
     <div id="settings-modal" class="modal-overlay hidden">
-      <h2>⚙️ Настройки Relay PWA</h2>
+      <h2>👤 Настройки личного чата</h2>
       
-      <label>Яндекс OAuth Токен:</label>
+      <label>Ваш никнейм:</label>
+      <input type="text" id="username-input" placeholder="Например: Stas" maxlength="20" autocomplete="off">
+
+      <label>Никнейм собеседника:</label>
+      <input type="text" id="peer-input" placeholder="Например: Masha" maxlength="20" autocomplete="off">
+
+      <div class="rule-box">
+        💡 <strong>Зеркальное правило никнеймов:</strong><br>
+        • У вас: <b>Stas</b> ➔ <b>Masha</b><br>
+        • У собеседника: <b>Masha</b> ➔ <b>Stas</b>
+      </div>
+
+      <label>Пароль шифрования комнаты:</label>
+      <div class="input-group">
+        <input type="password" id="secret-input" value="1234" placeholder="Введите: 1234" autocomplete="off">
+        <button type="button" class="btn-toggle-pwd" onclick="toggleVisibility('secret-input', this)">👁</button>
+      </div>
+
+      <label>Яндекс OAuth Токен (по умолчанию заполнен):</label>
       <div class="input-group">
         <input type="password" id="token-input" placeholder="Токен из Яндекс OAuth" autocomplete="off">
-        <button type="button" class="btn-toggle-pwd" onclick="toggleVisibility('token-input', this)" title="Показать/скрыть ключ">👁</button>
+        <button type="button" class="btn-toggle-pwd" onclick="toggleVisibility('token-input', this)">👁</button>
       </div>
-      <span class="field-hint">💡 Ключ уже вставлен автоматически, менять его не нужно. Укажите только пароль шифрования!</span>
+      <span class="field-hint">✅ Токен менять НЕ нужно, он предзаполнен по умолчанию!</span>
 
-      <label>Пароль шифрования чата:</label>
-      <div class="input-group">
-        <input type="password" id="secret-input" placeholder="Общий секретный пароль" autocomplete="off">
-        <button type="button" class="btn-toggle-pwd" onclick="toggleVisibility('secret-input', this)" title="Показать/скрыть пароль">👁</button>
-      </div>
-
-      <label>Ваше местоположение (Роль):</label>
-      <select id="role-select">
-        <option value="armenia">Я в Армении (Файл: armenia.json)</option>
-        <option value="russia">Я в России (Файл: russia.json)</option>
-      </select>
-      <button class="btn-send" onclick="saveSettings()" style="margin-top: 8px;">Сохранить и войти</button>
+      <button class="btn-cancel" onclick="openHelpModal()" style="margin-top: 4px;">📖 Полная инструкция и правила</button>
+      <button class="btn-send" onclick="saveSettings()" style="margin-top: 4px;">Войти в чат</button>
     </div>
 
-    <!-- Инструкция и Описание Проекта -->
-    <div id="help-modal" class="modal-overlay hidden">
-      <h2>👋 О проекте RelayChat</h2>
-      
-      <div class="modal-card">
-        <strong>🌐 Что такое RelayChat PWA?</strong><br>
-        RelayChat — это защищённый бессерверный PWA-мессенджер direct-to-cloud. Он работает без выделенного бэкенда, поддерживая офлайн-доступ и используя Яндекс Диск как зашифрованный буфер.
-      </div>
+    <!-- Модальное окно инструкции и правил -->
+    <div id="help-modal" class="modal-overlay hidden" style="justify-content: center; align-items: center;">
+      <div style="width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto;" class="modal-card">
+        <h3 style="color: #fff; margin-bottom: 12px; font-size: 18px;">📱 Инструкция и сохранение файла</h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 12px; color: #ccc;">
+          
+          <div>
+            <strong style="color: #81c784; font-size: 13px;">📲 Вариант А: Использование сайта (PWA на экран Домой)</strong>
+            <ol style="padding-left: 18px; margin-top: 6px;">
+              <li>Откройте Safari на вашем iPhone.</li>
+              <li>Перейдите по ссылке: <a href="https://misha12333211-ctrl.github.io/2Chat/" target="_blank" class="app-link">https://misha12333211-ctrl.github.io/2Chat/</a></li>
+              <li>Нажмите кнопку <b>«Поделиться»</b> (квадрат со стрелкой вверх).</li>
+              <li>Выберите <b>«На экран "Домой"»</b> ➔ <b>«Добавить»</b>.</li>
+            </ol>
+          </div>
 
-      <div class="modal-card">
-        <strong>🔒 Нулевое доверие (Zero-Knowledge Encryption):</strong><br>
-        Все сообщения шифруются прямо в браузере с помощью стойкого алгоритма <strong>AES-GCM-256</strong> (Web Crypto API). Ваш пароль и текст никогда не покидают устройство.
-      </div>
+          <hr style="border: none; border-top: 1px solid var(--border-color);">
 
-      <div class="modal-card">
-        <strong>📶 Работа в Offline (Sync Queue):</strong><br>
-        Вы можете отправлять сообщения даже без интернета — они сохранятся со статусом ⏳ и автоматически отправятся в Яндекс Диск, как только появится сеть.
-      </div>
+          <div>
+            <strong style="color: #81c784; font-size: 13px;">📁 Вариант Б: Сохранение локального файла в «Файлы» (для работы офлайн)</strong>
+            <ol style="padding-left: 18px; margin-top: 6px;">
+              <li>Скачайте `.html` файл чата на iPhone (через Telegram/Safari).</li>
+              <li>Нажмите на файл и выберите <b>«Поделиться»</b> ➔ <b>«Сохранить в "Файлы"»</b>.</li>
+              <li>Выберите папку <b>«На iPhone»</b> и нажмите <b>«Сохранить»</b>.</li>
+              <li>Откройте стандартное приложение 📁 <b>Файлы</b> на iPhone и нажмите на этот HTML-файл — он запустится в браузере с полной функциональностью локального PWA.</li>
+            </ol>
+          </div>
 
-      <button class="btn-send" onclick="closeHelp()">Понятно, к чату!</button>
+          <hr style="border: none; border-top: 1px solid var(--border-color);">
+
+          <div>
+            <strong style="color: #81c784; font-size: 13px;">⚙️ Правило парной настройки никнеймов</strong>
+            <p style="margin-top: 4px;">Никнеймы связывают каналы шифрования. У вас и собеседника они должны быть записаны **зеркально** (только латиницей):</p>
+            <div class="rule-box" style="margin-top: 6px;">
+              📍 <b>Вариант установки:</b><br>
+              • <b>Вы:</b> Ваше имя = <code class="code-chip">Stas</code> | Имя собеседника = <code class="code-chip">Masha</code><br>
+              • <b>Собеседник:</b> Ваше имя = <code class="code-chip">Masha</code> | Имя собеседника = <code class="code-chip">Stas</code>
+            </div>
+            <p style="margin-top: 6px;">Пароль шифрования комнаты у обоих должен быть строго <code class="code-chip">1234</code>.</p>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid var(--border-color);">
+
+          <div>
+            <strong style="color: #81c784; font-size: 13px;">💬 Статусы доставки и работа без сети</strong>
+            <ul style="padding-left: 18px; margin-top: 4px;">
+              <li>⏳ <b>Песочные часы:</b> Сообщение сохранено локально на устройстве (ждет появления сети).</li>
+              <li>✓ <b>(1 галочка):</b> Зашифровано и доставлено в Яндекс Диск.</li>
+              <li>✓✓ <b>(2 зеленые галочки):</b> Прочитано собеседником.</li>
+            </ul>
+          </div>
+
+          <div class="tech-note">
+            ⚠️ <b>Важно:</b> Локальный файл из приложения «Файлы» полностью сохраняет базу сообщений даже при перезапуске, но синхронизация с Яндекс Диском будет происходить только при активном подключении к интернету.
+          </div>
+
+        </div>
+
+        <button class="btn-send" style="width: 100%; margin-top: 16px;" onclick="closeHelpModal()">Понятно, закрыть</button>
+      </div>
     </div>
 
-    <!-- Модалка подтверждения очистки чата -->
+    <div id="status-modal" class="modal-overlay hidden" style="justify-content: center; align-items: center;">
+      <div style="width: 100%; max-width: 380px;" class="modal-card">
+        <h3 style="color: #fff; margin-bottom: 12px; font-size: 16px;">📊 Статус сообщения</h3>
+        <div id="status-info" style="margin-bottom: 16px;"></div>
+        <button class="btn-send" style="width: 100%;" onclick="closeStatusModal()">Закрыть</button>
+      </div>
+    </div>
+
     <div id="clear-modal" class="modal-overlay hidden" style="justify-content: center; align-items: center;">
       <div style="width: 100%; max-width: 360px;" class="modal-card">
-        <h3 style="color: #fff; margin-bottom: 8px; font-size: 16px;">🗑 Очистить всю переписку?</h3>
-        <p style="margin-bottom: 16px; font-size: 13px;">Все локальные сообщения и история в облаке будут безвозвратно удалены для обеих сторон.</p>
+        <h3 style="color: #fff; margin-bottom: 8px; font-size: 16px;">🗑 Очистить историю?</h3>
+        <p style="margin-bottom: 16px; font-size: 13px;">Сообщения будут удалены из локального хранилища.</p>
         <div class="modal-buttons">
           <button class="btn-cancel" onclick="closeClearModal()">Отмена</button>
           <button class="btn-danger" onclick="confirmClearChat()">Удалить</button>
@@ -433,24 +531,23 @@
       </div>
     </div>
 
-    <!-- Шапка -->
     <header>
       <div class="brand">
         <div id="status-dot" class="status-dot"></div>
-        <h3>Relay Messenger</h3>
-        <span class="version">v2.5.0 PWA</span>
+        <div class="brand-info">
+          <h3 id="chat-title">Личный чат</h3>
+          <span class="peer-status" id="peer-status-text">Загрузка...</span>
+        </div>
       </div>
       <div class="header-actions">
+        <button onclick="openHelpModal()" class="btn-icon" title="Инструкция">❓</button>
         <button onclick="openClearModal()" class="btn-icon danger" title="Очистить чат">🗑</button>
-        <button onclick="openHelp()" class="btn-icon" title="Инструкция">❓</button>
         <button onclick="openSettings()" class="btn-icon" title="Настройки">⚙️</button>
       </div>
     </header>
 
-    <!-- Область сообщений -->
     <div id="chat-box" onclick="closeContextMenu()"></div>
 
-    <!-- Поле ввода -->
     <footer>
       <div id="edit-bar" class="edit-bar hidden">
         <span id="edit-preview">Редактирование...</span>
@@ -464,80 +561,113 @@
   </div>
 
   <script>
-    // --- Динамическая регистрация Service Worker прямо из HTML ---
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        const swCode = `
-          const CACHE_NAME = 'relay-pwa-single-v1';
-          self.addEventListener('install', (e) => self.skipWaiting());
-          self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
-          self.addEventListener('fetch', (e) => {
-            if (e.request.url.includes('yandex.net')) return;
-            e.respondWith(
-              fetch(e.request).catch(() => caches.match(e.request))
-            );
-          });
-        `;
-        const blob = new Blob([swCode], { type: 'text/javascript' });
-        const swUrl = URL.createObjectURL(blob);
-        navigator.serviceWorker.register(swUrl)
-          .then(() => console.log('Inline SW зарегистрирован'))
-          .catch(err => console.error('Ошибка SW:', err));
-      });
-    }
-
     const DEFAULT_TOKEN = "y0__wgBEMa2sf0IGP_1RSCBtIGxGCTcqP3i5Xi6F-JXhjOgxxUYVhg3";
 
-    let config = JSON.parse(localStorage.getItem('chat_cfg_v5') || '{}');
+    let config = JSON.parse(localStorage.getItem('chat_direct_cfg_v4') || '{}');
     if (!config.token) config.token = DEFAULT_TOKEN;
 
     let db, cryptoKey;
     let editingMsgId = null;
     let activeContextMenu = null;
-    let lastReadRemoteTimestamp = 0;
     let longPressTimer = null;
     let renderedStateMap = new Map();
+    let isFirstSync = true;
+
+    function getChatId(u1, u2) {
+      return [u1.toLowerCase(), u2.toLowerCase()].sort().join('_');
+    }
 
     function toggleVisibility(inputId, btn) {
       const input = document.getElementById(inputId);
-      if (input.type === "password") {
-        input.type = "text";
-        btn.style.color = "var(--accent)";
-      } else {
-        input.type = "password";
-        btn.style.color = "var(--text-muted)";
+      input.type = input.type === "password" ? "text" : "password";
+      btn.style.color = input.type === "text" ? "var(--accent)" : "var(--text-muted)";
+    }
+
+    function requestNotificationPermission() {
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
       }
     }
 
-    // --- IndexedDB ---
-    const request = indexedDB.open("RelayChatDB_v5", 1);
+    function sendNotification(title, body) {
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(title, {
+          body,
+          icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💬</text></svg>'
+        });
+      }
+    }
+
+    const request = indexedDB.open("RelayDirectDB_v4", 1);
     request.onupgradeneeded = e => {
       db = e.target.result;
       if (!db.objectStoreNames.contains("messages")) {
-        db.createObjectStore("messages", { keyPath: "id" });
+        const store = db.createObjectStore("messages", { keyPath: "id" });
+        store.createIndex("chatId", "chatId", { unique: false });
       }
     };
     request.onsuccess = e => {
       db = e.target.result;
-      if (config.secret && config.token) initApp();
-      else openSettings();
+      if (config.secret && config.token && config.username && config.peer) {
+        initApp();
+      } else {
+        openHelpModal();
+        openSettings();
+      }
     };
 
     function openSettings() {
       document.getElementById('token-input').value = config.token || DEFAULT_TOKEN;
-      if (config.secret) document.getElementById('secret-input').value = config.secret;
-      if (config.role) document.getElementById('role-select').value = config.role;
+      document.getElementById('secret-input').value = config.secret || '1234';
+      if (config.username) document.getElementById('username-input').value = config.username;
+      if (config.peer) document.getElementById('peer-input').value = config.peer;
       document.getElementById('settings-modal').classList.remove('hidden');
     }
 
-    function openHelp() { document.getElementById('help-modal').classList.remove('hidden'); }
-    function closeHelp() { 
-      localStorage.setItem('relay_onboarded', 'true');
-      document.getElementById('help-modal').classList.add('hidden'); 
-    }
-
+    function openHelpModal() { document.getElementById('help-modal').classList.remove('hidden'); }
+    function closeHelpModal() { document.getElementById('help-modal').classList.add('hidden'); }
     function openClearModal() { document.getElementById('clear-modal').classList.remove('hidden'); }
     function closeClearModal() { document.getElementById('clear-modal').classList.add('hidden'); }
+    function closeStatusModal() { document.getElementById('status-modal').classList.add('hidden'); }
+
+    async function showMessageStatus(msgId) {
+      const messages = await getAllFromDB();
+      const msg = messages.find(m => m.id === msgId);
+      if (!msg) return;
+
+      const statusInfo = document.getElementById('status-info');
+
+      if (msg.pending) {
+        statusInfo.innerHTML = `
+          <div class="status-badge">
+            <span style="font-size: 18px;">⏳</span>
+            <div>
+              <strong>В очереди (Без сети)</strong>
+              <div style="font-size: 11px;">Сообщение сохранилось на устройстве, но не доставится до появления интернета</div>
+            </div>
+          </div>`;
+      } else if (msg.readByPeer) {
+        statusInfo.innerHTML = `
+          <div class="status-badge">
+            <span style="font-size: 18px; color: #81c784;">✓✓</span>
+            <div>
+              <strong style="color: #81c784;">Прочитано</strong>
+              <div style="font-size: 11px;">Собеседник открыл и просмотрел диалог</div>
+            </div>
+          </div>`;
+      } else {
+        statusInfo.innerHTML = `
+          <div class="status-badge">
+            <span style="font-size: 18px; color: #b0bec5;">✓</span>
+            <div>
+              <strong>Доставлено</strong>
+              <div style="font-size: 11px;">Сообщение сохранено в облаке и ожидает прочтения</div>
+            </div>
+          </div>`;
+      }
+
+      document.getElementById('status-modal').classList.remove('hidden');
+    }
 
     async function confirmClearChat() {
       closeClearModal();
@@ -548,32 +678,49 @@
     }
 
     function saveSettings() {
-      const token = document.getElementById('token-input').value.trim();
+      const token = document.getElementById('token-input').value.trim() || DEFAULT_TOKEN;
       const secret = document.getElementById('secret-input').value.trim();
-      const role = document.getElementById('role-select').value;
-      if (!token || !secret) { alert("Заполните токен и пароль!"); return; }
+      const username = document.getElementById('username-input').value.trim().replace(/[^a-zA-Z0-9_-]/g, '');
+      const peer = document.getElementById('peer-input').value.trim().replace(/[^a-zA-Z0-9_-]/g, '');
+      
+      if (!secret || !username || !peer) { 
+        alert("Заполните все поля!"); 
+        return; 
+      }
 
-      config = { token, secret, role };
-      localStorage.setItem('chat_cfg_v5', JSON.stringify(config));
+      if (username.toLowerCase() === peer.toLowerCase()) {
+        alert("Никнейм собеседника должен отличаться от вашего!");
+        return;
+      }
+
+      config = { token, secret, username, peer };
+      localStorage.setItem('chat_direct_cfg_v4', JSON.stringify(config));
       initApp();
     }
 
     async function initApp() {
+      requestNotificationPermission();
       document.getElementById('settings-modal').classList.add('hidden');
-      if (!localStorage.getItem('relay_onboarded')) openHelp();
+      document.getElementById('chat-title').textContent = `@${config.peer}`;
+      document.getElementById('peer-status-text').textContent = 'Личный диалог';
+
+      renderedStateMap.clear();
+      document.getElementById('chat-box').innerHTML = '';
+
       try { cryptoKey = await deriveKey(config.secret); } catch (e) { return; }
       await renderMessages(true);
+      
+      isFirstSync = true;
       syncWithYandex();
       if (window.syncInterval) clearInterval(window.syncInterval);
       window.syncInterval = setInterval(syncWithYandex, 3000);
     }
 
-    // --- Crypto ---
     async function deriveKey(secret) {
       const enc = new TextEncoder();
       const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(secret), "PBKDF2", false, ["deriveKey"]);
       return crypto.subtle.deriveKey(
-        { name: "PBKDF2", salt: enc.encode("relay_salt_v5"), iterations: 50000, hash: "SHA-256" },
+        { name: "PBKDF2", salt: enc.encode("relay_direct_salt_v4"), iterations: 50000, hash: "SHA-256" },
         keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
       );
     }
@@ -596,12 +743,14 @@
       } catch (e) { return null; }
     }
 
-    // --- DB Helper ---
     function getAllFromDB() {
       return new Promise((resolve) => {
         if (!db) return resolve([]);
         const tx = db.transaction("messages", "readonly");
-        const req = tx.objectStore("messages").getAll();
+        const store = tx.objectStore("messages");
+        const index = store.index("chatId");
+        const chatId = getChatId(config.username, config.peer);
+        const req = index.getAll(chatId);
         req.onsuccess = () => resolve(req.result || []);
         req.onerror = () => resolve([]);
       });
@@ -609,6 +758,7 @@
 
     function saveToDB(msg) {
       return new Promise((resolve) => {
+        msg.chatId = getChatId(config.username, config.peer);
         const tx = db.transaction("messages", "readwrite");
         tx.objectStore("messages").put(msg);
         tx.oncomplete = () => resolve();
@@ -624,14 +774,15 @@
     }
 
     function clearAllDB() {
-      return new Promise((resolve) => {
+      return new Promise(async (resolve) => {
+        const msgs = await getAllFromDB();
         const tx = db.transaction("messages", "readwrite");
-        tx.objectStore("messages").clear();
+        const store = tx.objectStore("messages");
+        msgs.forEach(m => store.delete(m.id));
         tx.oncomplete = () => resolve();
       });
     }
 
-    // --- Message Handlers ---
     async function handleSend() {
       const input = document.getElementById('msg-input');
       const text = input.value.trim();
@@ -649,11 +800,12 @@
         cancelEdit();
       } else {
         const msg = {
-          id: Date.now().toString(),
+          id: `${config.username}_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
           timestamp: Date.now(),
-          sender: config.role,
+          sender: config.username,
           text,
           pending: !navigator.onLine,
+          readByPeer: false,
           time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
         };
         await saveToDB(msg);
@@ -701,7 +853,6 @@
       closeContextMenu();
     }
 
-    // --- Custom Context Menu ---
     function openContextMenu(e, id, isMy, text) {
       if (e) {
         e.preventDefault();
@@ -716,10 +867,11 @@
       menu.className = 'context-menu';
       menu.id = 'active-context-menu';
 
-      let menuContent = `<button class="menu-item" onclick="copyMessageText('${escapeJsString(text)}')">📋 Копировать</button>`;
+      let menuContent = `<button class="menu-item" onclick="copyMessageText('${escapeJsString(text)}')">📋 Скопировать</button>`;
       
       if (isMy) {
         menuContent += `
+          <button class="menu-item" onclick="showMessageStatus('${id}'); closeContextMenu();">📊 Статус</button>
           <button class="menu-item" onclick="startEdit('${id}', '${escapeJsString(text)}')">✏️ Изменить</button>
           <button class="menu-item delete" onclick="deleteMessage('${id}')">🗑 Удалить</button>
         `;
@@ -747,7 +899,6 @@
       return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
     }
 
-    // --- Smart Render Messages ---
     async function renderMessages(forceScroll = false) {
       const messages = await getAllFromDB();
       const box = document.getElementById('chat-box');
@@ -765,9 +916,8 @@
       let hasNewMessage = false;
 
       messages.forEach(m => {
-        const isMy = m.sender === config.role;
-        const isRead = isMy && (Number(m.timestamp) <= lastReadRemoteTimestamp);
-        const stateKey = `${m.text}_${m.edited}_${isRead}_${m.pending}`;
+        const isMy = m.sender === config.username;
+        const stateKey = `${m.text}_${m.edited}_${m.readByPeer}_${m.pending}`;
 
         if (!renderedStateMap.has(m.id)) {
           const wrapper = document.createElement('div');
@@ -777,9 +927,11 @@
           let ticksHtml = '';
           if (isMy) {
             if (m.pending) {
-              ticksHtml = `<span class="ticks pending" title="В очереди на отправку">⏳</span>`;
+              ticksHtml = `<span class="ticks pending" onclick="event.stopPropagation(); showMessageStatus('${m.id}')" title="В очереди">⏳</span>`;
+            } else if (m.readByPeer) {
+              ticksHtml = `<span class="ticks read" onclick="event.stopPropagation(); showMessageStatus('${m.id}')" title="Прочитано">✓✓</span>`;
             } else {
-              ticksHtml = `<span class="ticks ${isRead ? 'read' : ''}">${isRead ? '✓✓' : '✓'}</span>`;
+              ticksHtml = `<span class="ticks delivered" onclick="event.stopPropagation(); showMessageStatus('${m.id}')" title="Доставлено">✓</span>`;
             }
           }
 
@@ -819,9 +971,11 @@
             let ticksHtml = '';
             if (isMy) {
               if (m.pending) {
-                ticksHtml = `<span class="ticks pending" title="В очереди на отправку">⏳</span>`;
+                ticksHtml = `<span class="ticks pending" onclick="event.stopPropagation(); showMessageStatus('${m.id}')" title="В очереди">⏳</span>`;
+              } else if (m.readByPeer) {
+                ticksHtml = `<span class="ticks read" onclick="event.stopPropagation(); showMessageStatus('${m.id}')" title="Прочитано">✓✓</span>`;
               } else {
-                ticksHtml = `<span class="ticks ${isRead ? 'read' : ''}">${isRead ? '✓✓' : '✓'}</span>`;
+                ticksHtml = `<span class="ticks delivered" onclick="event.stopPropagation(); showMessageStatus('${m.id}')" title="Доставлено">✓</span>`;
               }
             }
 
@@ -847,7 +1001,6 @@
       return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    // --- Offline Aware Sync ---
     async function syncWithYandex() {
       const dot = document.getElementById('status-dot');
 
@@ -856,63 +1009,74 @@
         return;
       }
 
-      const sendFileName = config.role === 'armenia' ? 'armenia.json' : 'russia.json';
-      const readFileName = config.role === 'armenia' ? 'russia.json' : 'armenia.json';
+      const myFileName = `direct_${config.username}_${config.peer}.json`;
+      const peerFileName = `direct_${config.peer}_${config.username}.json`;
 
       try {
-        const allMsgs = await getAllFromDB();
-
-        // Снимаем статус pending при успешной выгрузке
-        let updatedPending = false;
-        allMsgs.forEach(m => {
-          if (m.pending) {
-            delete m.pending;
-            saveToDB(m);
-            updatedPending = true;
-          }
-        });
-        if (updatedPending) await renderMessages();
-
-        const myMsgs = allMsgs.filter(m => m.sender === config.role);
-        const incomingMsgsLocal = allMsgs.filter(m => m.sender !== config.role);
-        const lastReadTimestamp = incomingMsgsLocal.length > 0 
-          ? Math.max(...incomingMsgsLocal.map(m => Number(m.timestamp))) 
-          : Date.now();
-
-        const encryptedData = await encrypt(JSON.stringify({
-          messages: myMsgs,
-          lastReadTimestamp
-        }));
-
-        await uploadFile(`app:/RelayChat/${sendFileName}`, { payload: encryptedData });
-
-        const remoteData = await downloadFile(`app:/RelayChat/${readFileName}`);
+        const remoteData = await downloadFile(`app:/RelayChat/${peerFileName}`);
         if (remoteData && remoteData.payload) {
           const decryptedText = await decrypt(remoteData.payload);
           if (decryptedText) {
             const parsedData = JSON.parse(decryptedText);
             const incomingMsgs = parsedData.messages || [];
-            
-            if (parsedData.lastReadTimestamp) {
-              lastReadRemoteTimestamp = parsedData.lastReadTimestamp;
-            }
+            const peerReadTimestamp = parsedData.lastReadTimestamp || 0;
 
+            const localMsgs = await getAllFromDB();
+            const localMsgIds = new Set(localMsgs.map(m => m.id));
             const currentRemoteIds = new Set(incomingMsgs.map(m => m.id));
-            
+
             for (const m of incomingMsgs) {
+              if (!localMsgIds.has(m.id)) {
+                if (!isFirstSync && m.sender === config.peer) {
+                  sendNotification(`Сообщение от @${config.peer}`, m.text);
+                }
+              }
               await saveToDB(m);
             }
 
-            for (const localMsg of incomingMsgsLocal) {
-              if (!currentRemoteIds.has(localMsg.id)) {
-                await deleteFromDB(localMsg.id);
+            for (const localMsg of localMsgs) {
+              if (localMsg.sender === config.username) {
+                if (localMsg.timestamp <= peerReadTimestamp && !localMsg.readByPeer) {
+                  localMsg.readByPeer = true;
+                  await saveToDB(localMsg);
+                }
+              } else {
+                if (!currentRemoteIds.has(localMsg.id)) {
+                  await deleteFromDB(localMsg.id);
+                }
               }
             }
-
-            await renderMessages();
           }
         }
 
+        isFirstSync = false;
+
+        const allMsgs = await getAllFromDB();
+        let maxPeerMsgTimestamp = 0;
+
+        for (let m of allMsgs) {
+          if (m.sender === config.peer) {
+            if (m.timestamp > maxPeerMsgTimestamp) maxPeerMsgTimestamp = m.timestamp;
+          }
+          if (m.pending) {
+            delete m.pending;
+            await saveToDB(m);
+          }
+        }
+
+        const updatedMsgs = await getAllFromDB();
+        const myMsgs = updatedMsgs.filter(m => m.sender === config.username);
+        
+        const encryptedData = await encrypt(JSON.stringify({
+          sender: config.username,
+          updatedAt: Date.now(),
+          lastReadTimestamp: maxPeerMsgTimestamp,
+          messages: myMsgs
+        }));
+
+        await uploadFile(`app:/RelayChat/${myFileName}`, { payload: encryptedData });
+
+        await renderMessages();
         dot.className = "status-dot online";
       } catch (err) {
         dot.className = "status-dot error";
@@ -950,3 +1114,4 @@
   </script>
 </body>
 </html>
+
