@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#121212">
-  <title>Relay Messenger</title>
+  <title>Relay Messenger (Yandex Cloud)</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     
@@ -84,7 +84,6 @@
       background: #121212;
     }
 
-    /* Кастомный скроллбар */
     #chat-box::-webkit-scrollbar { width: 6px; }
     #chat-box::-webkit-scrollbar-track { background: transparent; }
     #chat-box::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
@@ -128,7 +127,6 @@
 
     footer {
       padding: 14px 16px;
-      /* Автоматический безопасный отступ снизу для мобилок + запас */
       padding-bottom: calc(16px + env(safe-area-inset-bottom, 12px));
       background: #1a1a1a;
       display: flex;
@@ -199,25 +197,20 @@
   <div id="app-viewport">
     <!-- Экран настроек -->
     <div id="settings">
-      <h2>⚙️ Настройки чата</h2>
-      <p style="font-size: 12px; color: #888; margin-bottom: 8px;">Данные подключения сохранены по умолчанию.</p>
+      <h2>⚙️ Настройки Яндекс Облака</h2>
+      <p style="font-size: 12px; color: #888; margin-bottom: 4px;">Для синхронизации используется ваш Яндекс.Диск.</p>
       
-      <label>JSONBin Master Key:</label>
-      <input type="password" id="key-input" value="$2a$10$nYenFw1r7ThYJ5PUqLd.WuLal8KlHUi9RQ6vmKqaljNcdZNl4JJVG" autocomplete="off">
-      
-      <label>Bin ID Армении:</label>
-      <input type="text" id="bin-armenia-input" value="6a6024f9f5f4af5e29aef40e" autocomplete="off">
-
-      <label>Bin ID России:</label>
-      <input type="text" id="bin-russia-input" value="6a60250bda38895dfe7d7855" autocomplete="off">
+      <label>Яндекс OAuth Токен:</label>
+      <input type="password" id="token-input" placeholder="Введите OAuth-токен Яндекс.Диска" autocomplete="off">
+      <a href="https://oauth.yandex.ru/authorize?response_type=token&client_id=13988b90709b433e9444154fa72a2cfd" target="_blank" style="font-size: 11px; color: #81c784; text-decoration: none;">👉 Получить токен от Яндекса в 1 клик</a>
 
       <label>Пароль для шифрования сообщений:</label>
-      <input type="password" id="secret-input" placeholder="Введите секретный пароль" autocomplete="off">
+      <input type="password" id="secret-input" placeholder="Общий секретный пароль чата" autocomplete="off">
       
-      <label>Ваше текущее местоположение:</label>
+      <label>Ваша роль в чате:</label>
       <select id="role-select">
-        <option value="armenia">Я в Армении (Пишу в Bin Армении)</option>
-        <option value="russia">Я в России (Пишу в Bin России)</option>
+        <option value="armenia">Я в Армении (Пишу в armenia.json)</option>
+        <option value="russia">Я в России (Пишу в russia.json)</option>
       </select>
 
       <button onclick="saveSettings()" style="margin-top: 12px;">Сохранить и войти</button>
@@ -225,7 +218,7 @@
 
     <!-- Интерфейс чата -->
     <header>
-      <h3>💬 Relay Messenger</h3>
+      <h3>💬 Relay Messenger (Yandex)</h3>
       <div class="header-actions">
         <button onclick="openSettings()" class="btn-secondary">⚙️</button>
         <span id="status-badge" class="status">Оффлайн</span>
@@ -241,8 +234,7 @@
   </div>
 
   <script>
-    const DEFAULT_KEY = "$2a$10$nYenFw1r7ThYJ5PUqLd.WuLal8KlHUi9RQ6vmKqaljNcdZNl4JJVG";
-    let config = JSON.parse(localStorage.getItem('chat_cfg_jb_v4') || '{}');
+    let config = JSON.parse(localStorage.getItem('chat_cfg_yandex_v1') || '{}');
     let db, cryptoKey;
 
     // --- 1. Inline PWA Setup ---
@@ -263,14 +255,14 @@
 
       if ('serviceWorker' in navigator) {
         const swCode = `
-          const CACHE_NAME = 'relay-pwa-v5';
+          const CACHE_NAME = 'relay-pwa-yandex-v1';
           self.addEventListener('install', e => {
             e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(['./'])));
             self.skipWaiting();
           });
           self.addEventListener('activate', e => self.clients.claim());
           self.addEventListener('fetch', e => {
-            if (e.request.url.includes('jsonbin.io')) return;
+            if (e.request.url.includes('yandex.net')) return;
             e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
           });
         `;
@@ -280,7 +272,7 @@
     }
 
     // --- 2. IndexedDB ---
-    const request = indexedDB.open("OfflineChatDB_JB_v4", 1);
+    const request = indexedDB.open("OfflineChatDB_Yandex_v1", 1);
     request.onupgradeneeded = e => {
       db = e.target.result;
       if (!db.objectStoreNames.contains("messages")) {
@@ -290,7 +282,7 @@
     request.onsuccess = e => {
       db = e.target.result;
       setupPWA();
-      if (config.secret) {
+      if (config.secret && config.token) {
         initApp();
       } else {
         openSettings();
@@ -298,28 +290,24 @@
     };
 
     function openSettings() {
-      document.getElementById('key-input').value = config.apiKey || DEFAULT_KEY;
-      document.getElementById('bin-armenia-input').value = config.binArmenia || "6a6024f9f5f4af5e29aef40e";
-      document.getElementById('bin-russia-input').value = config.binRussia || "6a60250bda38895dfe7d7855";
+      if (config.token) document.getElementById('token-input').value = config.token;
       if (config.secret) document.getElementById('secret-input').value = config.secret;
       if (config.role) document.getElementById('role-select').value = config.role;
       document.getElementById('settings').classList.remove('hidden');
     }
 
     function saveSettings() {
-      const apiKey = document.getElementById('key-input').value.trim() || DEFAULT_KEY;
-      const binArmenia = document.getElementById('bin-armenia-input').value.trim();
-      const binRussia = document.getElementById('bin-russia-input').value.trim();
+      const token = document.getElementById('token-input').value.trim();
       const secret = document.getElementById('secret-input').value.trim();
       const role = document.getElementById('role-select').value;
 
-      if (!secret) {
-        alert("Укажите пароль чата для шифрования!");
+      if (!token || !secret) {
+        alert("Заполните OAuth-токен и пароль шифрования!");
         return;
       }
 
-      config = { apiKey, binArmenia, binRussia, secret, role };
-      localStorage.setItem('chat_cfg_jb_v4', JSON.stringify(config));
+      config = { token, secret, role };
+      localStorage.setItem('chat_cfg_yandex_v1', JSON.stringify(config));
       initApp();
     }
 
@@ -331,9 +319,9 @@
         return;
       }
       await renderMessages();
-      syncWithJSONBin();
+      syncWithYandex();
       if (window.syncInterval) clearInterval(window.syncInterval);
-      window.syncInterval = setInterval(syncWithJSONBin, 4000);
+      window.syncInterval = setInterval(syncWithYandex, 4000);
     }
 
     // --- 3. Шифрование ---
@@ -341,7 +329,7 @@
       const enc = new TextEncoder();
       const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(secret), "PBKDF2", false, ["deriveKey"]);
       return crypto.subtle.deriveKey(
-        { name: "PBKDF2", salt: enc.encode("jsonbin_salt_2026_v4"), iterations: 50000, hash: "SHA-256" },
+        { name: "PBKDF2", salt: enc.encode("yandex_salt_2026_v1"), iterations: 50000, hash: "SHA-256" },
         keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
       );
     }
@@ -402,7 +390,7 @@
       await saveToDB(msg);
       input.value = '';
       await renderMessages();
-      syncWithJSONBin();
+      syncWithYandex();
     }
 
     async function renderMessages() {
@@ -426,8 +414,8 @@
       box.scrollTop = box.scrollHeight;
     }
 
-    // --- 5. Синхронизация ---
-    async function syncWithJSONBin() {
+    // --- 5. Яндекс.Диск Синхронизация ---
+    async function syncWithYandex() {
       const badge = document.getElementById('status-badge');
       if (!navigator.onLine) {
         badge.textContent = "Оффлайн";
@@ -435,27 +423,30 @@
         return;
       }
 
-      const sendBinId = config.role === 'armenia' ? config.binArmenia : config.binRussia;
-      const readBinId = config.role === 'armenia' ? config.binRussia : config.binArmenia;
+      const sendFileName = config.role === 'armenia' ? 'armenia.json' : 'russia.json';
+      const readFileName = config.role === 'armenia' ? 'russia.json' : 'armenia.json';
 
       try {
+        // Убедимся, что папка /RelayChat/ существует
+        await fetch('https://cloud-api.yandex.net/v1/disk/resources?path=app:/RelayChat', {
+          method: 'PUT',
+          headers: { 'Authorization': `OAuth ${config.token}` }
+        }).catch(() => {}); // Игнорируем ошибку, если папка уже есть
+
+        // 1. Отправка своих сообщений
         const allMsgs = await getAllMessagesFromDB();
         const myMsgs = allMsgs.filter(m => m.sender === config.role);
-
-        // 1. Отправка сообщений
         const encryptedData = await encrypt(JSON.stringify(myMsgs));
-        const payload = {
-          status: "active",
+        
+        await uploadFileToDisk(`app:/RelayChat/${sendFileName}`, {
           updatedAt: Date.now(),
           payload: encryptedData
-        };
+        });
 
-        await writeBin(sendBinId, payload);
-
-        // 2. Чтение входящих сообщений
-        const remoteRecord = await readBin(readBinId);
-        if (remoteRecord && remoteRecord.payload && remoteRecord.payload.iv) {
-          const decryptedText = await decrypt(remoteRecord.payload);
+        // 2. Чтение сообщений собеседника
+        const remoteData = await downloadFileFromDisk(`app:/RelayChat/${readFileName}`);
+        if (remoteData && remoteData.payload && remoteData.payload.iv) {
+          const decryptedText = await decrypt(remoteData.payload);
           if (decryptedText) {
             const incomingMsgs = JSON.parse(decryptedText);
             let newCount = 0;
@@ -480,34 +471,34 @@
       }
     }
 
-    async function writeBin(binId, payload) {
-      const url = `https://api.jsonbin.io/v3/b/${binId}`;
-      try {
-        const res = await fetch(url, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Master-Key': config.apiKey || DEFAULT_KEY
-          },
-          body: JSON.stringify(payload)
-        });
-        return res.ok;
-      } catch (e) {
-        return false;
-      }
+    async function uploadFileToDisk(path, dataObj) {
+      // Получаем ссылку для загрузки
+      const res = await fetch(`https://cloud-api.yandex.net/v1/disk/resources/upload?path=${encodeURIComponent(path)}&overwrite=true`, {
+        headers: { 'Authorization': `OAuth ${config.token}` }
+      });
+      if (!res.ok) return;
+      const { href } = await res.json();
+
+      // Загружаем данные по полученной ссылке
+      await fetch(href, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataObj)
+      });
     }
 
-    async function readBin(binId) {
-      try {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
-          headers: { 'X-Master-Key': config.apiKey || DEFAULT_KEY }
-        });
-        if (!res.ok) return null;
-        const data = await res.json();
-        return data.record;
-      } catch (e) {
-        return null;
-      }
+    async function downloadFileFromDisk(path) {
+      // Получаем ссылку для скачивания
+      const res = await fetch(`https://cloud-api.yandex.net/v1/disk/resources/download?path=${encodeURIComponent(path)}`, {
+        headers: { 'Authorization': `OAuth ${config.token}` }
+      });
+      if (!res.ok) return null;
+      const { href } = await res.json();
+
+      // Скачиваем сам JSON файл
+      const fileRes = await fetch(href);
+      if (!fileRes.ok) return null;
+      return await fileRes.json();
     }
   </script>
 </body>
