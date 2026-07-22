@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a0a0a">
-  <title>Relay Secure Messenger v2.5.1</title>
+  <title>Relay Secure Messenger v2.5.2</title>
   <style>
     :root {
       --bg-main: #0a0a0a;
@@ -75,7 +75,6 @@
 
     .brand { display: flex; align-items: center; gap: 10px; }
     .brand h3 { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
-    .version-tag { font-size: 10px; background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 6px; color: #aaa; }
 
     .status-dot {
       width: 8px;
@@ -149,9 +148,7 @@
       transition: transform 0.1s ease;
     }
 
-    .msg:active {
-      transform: scale(0.98);
-    }
+    .msg:active { transform: scale(0.98); }
 
     .msg-wrapper.my .msg {
       background: var(--msg-my);
@@ -315,111 +312,49 @@
     .sheet-btn:active { background: #2a2a2a; }
     .sheet-btn.danger { color: #ef5350; border-color: rgba(239, 83, 80, 0.2); }
 
-    /* --- Onboarding & Settings Modals --- */
-    .full-screen-modal {
+    /* --- Modal Settings --- */
+    #settings {
       position: absolute;
       inset: 0;
       background: var(--bg-card);
       padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      z-index: 40;
+      gap: 14px;
+      z-index: 20;
       overflow-y: auto;
     }
 
-    .full-screen-modal h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.4px; }
-    .full-screen-modal p { font-size: 14px; color: #aaa; line-height: 1.5; }
-    
-    .feature-card {
-      background: #161616;
-      border: 1px solid #242424;
-      padding: 14px;
-      border-radius: 14px;
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-    }
-    .feature-icon { font-size: 20px; background: #222; padding: 8px; border-radius: 10px; }
-    .feature-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 2px; }
-    .feature-desc { font-size: 12px; color: #888; }
-
+    #settings h2 { font-size: 20px; font-weight: 600; }
+    #settings label { font-size: 12px; color: var(--text-muted); margin-bottom: -6px; }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
   <div id="app-viewport">
-
-    <!-- Приветственный экран / Инструкция (Onboarding) -->
-    <div id="onboarding-modal" class="full-screen-modal hidden">
-      <h2>👋 Добро пожаловать в Relay</h2>
-      <p>Защищённый offline-first мессенджер для безопасной связи между Арменией и Россией через облачную инфраструктуру Яндекса.</p>
-
-      <div class="feature-card">
-        <div class="feature-icon">🔒</div>
-        <div>
-          <div class="feature-title">E2E Шифрование (AES-GCM)</div>
-          <div class="feature-desc">Все сообщения шифруются прямо на вашем устройстве. Яндекс видит только зашифрованный шум.</div>
-        </div>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">☁️</div>
-        <div>
-          <div class="feature-title">Яндекс Облако (Мост)</div>
-          <div class="feature-desc">Передача сообщений происходит через `.json` файлы на вашем Яндекс.Диске без риска блокировки API.</div>
-        </div>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">✓✓</div>
-        <div>
-          <div class="feature-title">Статусы прочтения</div>
-          <div class="feature-desc">Одна галочка — отправлено в облако. Две зелёные галочки — собеседник открыл чат и прочитал текст.</div>
-        </div>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">👆</div>
-        <div>
-          <div class="feature-title">Управление сообщениями</div>
-          <div class="feature-desc">Зажмите сообщение (300мс), чтобы скопировать, изменить или удалить его.</div>
-        </div>
-      </div>
-
-      <button class="btn-send" onclick="closeOnboarding()" style="margin-top: auto; padding: 14px;">Перейти к настройкам</button>
-    </div>
-
     <!-- Настройки -->
-    <div id="settings-modal" class="full-screen-modal hidden">
-      <h2>⚙️ Настройки подключения</h2>
-      <p style="font-size: 13px;">Укажите OAuth-токен Яндекса и пароль шифрования для входа.</p>
-      
-      <label style="font-size: 12px; color: var(--text-muted);">Яндекс OAuth Токен:</label>
-      <input type="password" id="token-input" placeholder="Токен из oauth.yandex.ru" autocomplete="off">
-      
-      <label style="font-size: 12px; color: var(--text-muted);">Пароль шифрования чата:</label>
+    <div id="settings">
+      <h2>⚙️ Настройки Relay</h2>
+      <label>Яндекс OAuth Токен:</label>
+      <input type="password" id="token-input" placeholder="Токен из Яндекс OAuth" autocomplete="off">
+      <label>Пароль шифрования чата:</label>
       <input type="password" id="secret-input" placeholder="Общий секретный пароль" autocomplete="off">
-      
-      <label style="font-size: 12px; color: var(--text-muted);">Ваше местоположение:</label>
+      <label>Ваше местоположение:</label>
       <select id="role-select">
         <option value="armenia">Я в Армении (Файл: armenia.json)</option>
         <option value="russia">Я в России (Файл: russia.json)</option>
       </select>
-
-      <div style="margin-top: auto; display: flex; gap: 10px;">
-        <button class="btn-send" onclick="saveSettings()" style="flex: 1; padding: 14px;">Сохранить и войти</button>
-      </div>
+      <button class="btn-send" onclick="saveSettings()" style="margin-top: 10px;">Сохранить и войти</button>
     </div>
 
-    <!-- Нижнее Всплывающее Меню (Action Sheet) -->
+    <!-- Нижнее Меню (Action Sheet) -->
     <div id="action-sheet-overlay" class="modal-overlay" onclick="closeActionSheet()">
       <div class="bottom-sheet" onclick="event.stopPropagation()">
         <div class="sheet-handle"></div>
         <div id="sheet-preview" class="sheet-preview">Текст сообщения...</div>
         <button id="btn-copy" class="sheet-btn" onclick="triggerCopyFromSheet()">📋 Копировать текст</button>
-        <button id="btn-edit" class="sheet-btn" onclick="triggerEditFromSheet()">✏️ Изменить сообщение</button>
+        <button id="btn-edit" class="sheet-btn" onclick="triggerEditFromSheet()">✎ Изменить сообщение</button>
         <button id="btn-delete" class="sheet-btn danger" onclick="triggerDeleteFromSheet()">🗑 Удалить сообщение</button>
       </div>
     </div>
@@ -428,12 +363,10 @@
     <header>
       <div class="brand">
         <div id="status-dot" class="status-dot"></div>
-        <h3>Relay</h3>
-        <span class="version-tag">v2.5.1</span>
+        <h3>💬 Relay Messenger</h3>
       </div>
       <div class="header-actions">
-        <button onclick="openOnboarding()" class="btn-icon" title="Инструкция">❓</button>
-        <button onclick="openSettings()" class="btn-icon" title="Настройки">⚙️</button>
+        <button onclick="openSettings()" class="btn-icon">⚙️</button>
       </div>
     </header>
 
@@ -454,14 +387,15 @@
   </div>
 
   <script>
-    let config = JSON.parse(localStorage.getItem('chat_cfg_v251') || '{}');
+    // Используем родные ключи v3 для совместимости базы данных и сетевого токена!
+    let config = JSON.parse(localStorage.getItem('chat_cfg_v3') || '{}');
     let db, cryptoKey;
     let editingMsgId = null;
     let targetMsgForSheet = null;
     let lastReadRemoteTimestamp = 0;
 
     // --- IndexedDB ---
-    const request = indexedDB.open("RelayChatDB_v251", 1);
+    const request = indexedDB.open("RelayChatDB_v3", 1);
     request.onupgradeneeded = e => {
       db = e.target.result;
       if (!db.objectStoreNames.contains("messages")) {
@@ -470,34 +404,18 @@
     };
     request.onsuccess = e => {
       db = e.target.result;
-      
-      const hasSeenGuide = localStorage.getItem('relay_seen_guide');
-      if (!hasSeenGuide) {
-        openOnboarding();
-      } else if (!config.secret || !config.token) {
-        openSettings();
-      } else {
+      if (config.secret && config.token) {
         initApp();
+      } else {
+        openSettings();
       }
     };
-
-    function openOnboarding() {
-      document.getElementById('onboarding-modal').classList.remove('hidden');
-    }
-
-    function closeOnboarding() {
-      localStorage.setItem('relay_seen_guide', 'true');
-      document.getElementById('onboarding-modal').classList.add('hidden');
-      if (!config.secret || !config.token) {
-        openSettings();
-      }
-    }
 
     function openSettings() {
       if (config.token) document.getElementById('token-input').value = config.token;
       if (config.secret) document.getElementById('secret-input').value = config.secret;
       if (config.role) document.getElementById('role-select').value = config.role;
-      document.getElementById('settings-modal').classList.remove('hidden');
+      document.getElementById('settings').classList.remove('hidden');
     }
 
     function saveSettings() {
@@ -508,12 +426,12 @@
       if (!token || !secret) { alert("Укажите токен и пароль!"); return; }
 
       config = { token, secret, role };
-      localStorage.setItem('chat_cfg_v251', JSON.stringify(config));
-      document.getElementById('settings-modal').classList.add('hidden');
+      localStorage.setItem('chat_cfg_v3', JSON.stringify(config));
       initApp();
     }
 
     async function initApp() {
+      document.getElementById('settings').classList.add('hidden');
       try { cryptoKey = await deriveKey(config.secret); } catch (e) { return; }
       await renderMessages();
       syncWithYandex();
@@ -526,7 +444,7 @@
       const enc = new TextEncoder();
       const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(secret), "PBKDF2", false, ["deriveKey"]);
       return crypto.subtle.deriveKey(
-        { name: "PBKDF2", salt: enc.encode("relay_salt_v251"), iterations: 50000, hash: "SHA-256" },
+        { name: "PBKDF2", salt: enc.encode("relay_salt_v3"), iterations: 50000, hash: "SHA-256" },
         keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
       );
     }
@@ -583,7 +501,7 @@
       const startPress = () => {
         if (timer) clearTimeout(timer);
         timer = setTimeout(() => {
-          if (navigator.vibrate) navigator.vibrate(50);
+          if (navigator.vibrate) navigator.vibrate(40);
           openActionSheet(msgObj, isMy);
         }, 300);
       };
@@ -616,7 +534,6 @@
       targetMsgForSheet = msg;
       document.getElementById('sheet-preview').textContent = msg.text;
 
-      // Показываем Изменить/Удалить только для своих сообщений
       const btnEdit = document.getElementById('btn-edit');
       const btnDelete = document.getElementById('btn-delete');
       if (isMy) {
@@ -643,7 +560,6 @@
         if (navigator.clipboard && navigator.clipboard.writeText) {
           await navigator.clipboard.writeText(textToCopy);
         } else {
-          // Запасной варианты для старых браузеров
           const textArea = document.createElement("textarea");
           textArea.value = textToCopy;
           document.body.appendChild(textArea);
