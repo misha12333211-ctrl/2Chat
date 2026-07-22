@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a0a0a">
-  <title>Relay Secure Messenger v2.5.2</title>
+  <title>Relay Secure Messenger</title>
   <style>
     :root {
       --bg-main: #0a0a0a;
@@ -387,7 +387,6 @@
   </div>
 
   <script>
-    // Используем родные ключи v3 для совместимости базы данных и сетевого токена!
     let config = JSON.parse(localStorage.getItem('chat_cfg_v3') || '{}');
     let db, cryptoKey;
     let editingMsgId = null;
@@ -707,8 +706,17 @@
           lastReadTimestamp
         }));
 
-        await uploadFile(`app:/RelayChat/${sendFileName}`, { payload: encryptedData });
+        // Гарантируем создание рабочей папки
+        await ensureFolderExists('app:/RelayChat');
 
+        // 1. Отправляем локальные сообщения
+        const isUploaded = await uploadFile(`app:/RelayChat/${sendFileName}`, { payload: encryptedData });
+        if (!isUploaded) {
+          dot.className = "status-dot error";
+          return;
+        }
+
+        // 2. Читаем сообщения собеседника
         const remoteData = await downloadFile(`app:/RelayChat/${readFileName}`);
         if (remoteData && remoteData.payload) {
           const decryptedText = await decrypt(remoteData.payload);
@@ -742,28 +750,45 @@
       }
     }
 
+    async function ensureFolderExists(path) {
+      try {
+        await fetch(`https://cloud-api.yandex.net/v1/disk/resources?path=${encodeURIComponent(path)}`, {
+          method: 'PUT',
+          headers: { 'Authorization': `OAuth ${config.token}` }
+        });
+      } catch (e) {}
+    }
+
     async function uploadFile(path, dataObj) {
-      const res = await fetch(`https://cloud-api.yandex.net/v1/disk/resources/upload?path=${encodeURIComponent(path)}&overwrite=true`, {
-        headers: { 'Authorization': `OAuth ${config.token}` }
-      });
-      if (!res.ok) return false;
-      const { href } = await res.json();
-      const putRes = await fetch(href, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataObj)
-      });
-      return putRes.ok;
+      try {
+        const res = await fetch(`https://cloud-api.yandex.net/v1/disk/resources/upload?path=${encodeURIComponent(path)}&overwrite=true`, {
+          headers: { 'Authorization': `OAuth ${config.token}` }
+        });
+        if (!res.ok) return false;
+        const { href } = await res.json();
+        const putRes = await fetch(href, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dataObj)
+        });
+        return putRes.ok;
+      } catch (e) {
+        return false;
+      }
     }
 
     async function downloadFile(path) {
-      const res = await fetch(`https://cloud-api.yandex.net/v1/disk/resources/download?path=${encodeURIComponent(path)}`, {
-        headers: { 'Authorization': `OAuth ${config.token}` }
-      });
-      if (!res.ok) return null;
-      const { href } = await res.json();
-      const fileRes = await fetch(href);
-      return fileRes.ok ? await fileRes.json() : null;
+      try {
+        const res = await fetch(`https://cloud-api.yandex.net/v1/disk/resources/download?path=${encodeURIComponent(path)}`, {
+          headers: { 'Authorization': `OAuth ${config.token}` }
+        });
+        if (!res.ok) return null;
+        const { href } = await res.json();
+        const fileRes = await fetch(href);
+        return fileRes.ok ? await fileRes.json() : null;
+      } catch (e) {
+        return null;
+      }
     }
   </script>
 </body>
