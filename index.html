@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a0a0a">
-  <title>Relay Secure Messenger</title>
+  <title>Relay Secure Messenger v2.5.3</title>
   <style>
     :root {
       --bg-main: #0a0a0a;
@@ -392,6 +392,7 @@
     let editingMsgId = null;
     let targetMsgForSheet = null;
     let lastReadRemoteTimestamp = 0;
+    let isFolderVerified = false;
 
     // --- IndexedDB ---
     const request = indexedDB.open("RelayChatDB_v3", 1);
@@ -426,6 +427,7 @@
 
       config = { token, secret, role };
       localStorage.setItem('chat_cfg_v3', JSON.stringify(config));
+      isFolderVerified = false;
       initApp();
     }
 
@@ -493,7 +495,7 @@
       });
     }
 
-    // --- Long Press Logic (300ms) ---
+    // --- Long Press Logic ---
     function attachLongPress(element, msgObj, isMy) {
       let timer = null;
 
@@ -693,6 +695,12 @@
       const readFileName = config.role === 'armenia' ? 'russia.json' : 'armenia.json';
 
       try {
+        // Проверяем наличие папки только один раз при старте
+        if (!isFolderVerified) {
+          await ensureFolderExists('app:/RelayChat');
+          isFolderVerified = true;
+        }
+
         const allMsgs = await getAllFromDB();
         const myMsgs = allMsgs.filter(m => m.sender === config.role);
         
@@ -705,9 +713,6 @@
           messages: myMsgs,
           lastReadTimestamp
         }));
-
-        // Гарантируем создание рабочей папки
-        await ensureFolderExists('app:/RelayChat');
 
         // 1. Отправляем локальные сообщения
         const isUploaded = await uploadFile(`app:/RelayChat/${sendFileName}`, { payload: encryptedData });
@@ -752,10 +757,15 @@
 
     async function ensureFolderExists(path) {
       try {
-        await fetch(`https://cloud-api.yandex.net/v1/disk/resources?path=${encodeURIComponent(path)}`, {
-          method: 'PUT',
+        const checkRes = await fetch(`https://cloud-api.yandex.net/v1/disk/resources?path=${encodeURIComponent(path)}`, {
           headers: { 'Authorization': `OAuth ${config.token}` }
         });
+        if (!checkRes.ok && checkRes.status === 404) {
+          await fetch(`https://cloud-api.yandex.net/v1/disk/resources?path=${encodeURIComponent(path)}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `OAuth ${config.token}` }
+          });
+        }
       } catch (e) {}
     }
 
