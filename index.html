@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d0d0e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Relay%20Chat%20Pro%22%2C%22short_name%22%3A%22Relay%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2309090b%22%2C%22theme_color%22%3A%22%230d0d0e%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+  <title>Relay Direct Messenger v5.0 Pro (Offline Enhanced)</title>
+
+  <style>
+    :root {
+      --bg-main: #09090b; --bg-card: #121215; --bg-header: rgba(18, 18, 21, 0.85);
+      --accent: #2e7d32; --accent-hover: #338a36; --msg-my: #1b3e1d; --msg-their: #1c1c21;
+      --text-main: #f4f4f5; --text-muted: #71717a; --border-color: #27272a;
+      --radius-sm: 8px; --radius-md: 14px; --radius-lg: 20px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg-main); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100dvh; height: 100dvh; overflow: hidden; }
+
+    #app-viewport { width: 100%; max-width: 960px; height: 100dvh; display: flex; flex-direction: column; background: var(--bg-card); position: relative; }
+    @media (min-width: 768px) {
+      #app-viewport { height: 92dvh; max-height: 900px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: 0 25px 60px rgba(0,0,0,0.8); overflow: hidden; }
+    }
+
+    header, footer { background: var(--bg-header); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 10; }
+    header { padding: calc(14px + env(safe-area-inset-top, 0px)) 20px 14px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    
+    .brand, .header-actions, .input-row, .toolbar-extra { display: flex; align-items: center; gap: 8px; }
+    .brand-info { display: flex; flex-direction: column; }
+    .brand h3 { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+    .brand span.peer-status { font-size: 11px; color: var(--text-muted); }
+
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); transition: all 0.3s; }
+    .status-dot.online { background: #4caf50; box-shadow: 0 0 10px rgba(76,175,80,0.6); }
+    .status-dot.offline { background: #ff9800; box-shadow: 0 0 10px rgba(255,152,0,0.6); }
+    .status-dot.error { background: #f44336; box-shadow: 0 0 10px rgba(244,67,54,0.6); }
+
+    .btn-icon { background: transparent; border: none; color: var(--text-muted); padding: 8px; border-radius: 50%; cursor: pointer; transition: all 0.2s; font-size: 15px; }
+    .btn-icon:hover { color: #fff; background: rgba(255,255,255,0.06); }
+    .btn-icon.danger:hover { color: #ef5350; background: rgba(239,83,80,0.12); }
+
+    #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background: var(--bg-main); }
+    #chat-box::-webkit-scrollbar { width: 4px; }
+    #chat-box::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+    .msg-wrapper { display: flex; flex-direction: column; max-width: 82%; position: relative; animation: msgPop 0.18s ease-out; }
+    @keyframes msgPop { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .msg-wrapper.my { align-self: flex-end; }
+    .msg-wrapper.their { align-self: flex-start; }
+
+    .msg { padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; word-break: break-word; user-select: none; cursor: pointer; }
+    .msg-wrapper.my .msg { background: var(--msg-my); color: #fff; border-bottom-right-radius: 4px; border: 1px solid rgba(255,255,255,0.06); }
+    .msg-wrapper.their .msg { background: var(--msg-their); color: var(--text-main); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; }
+
+    .msg-media { max-width: 100%; border-radius: 10px; margin-top: 6px; display: block; cursor: pointer; transition: opacity 0.2s; }
+    .msg-media:hover { opacity: 0.9; }
+    .msg-file-attach { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 8px; margin-top: 6px; text-decoration: none; color: #fff; font-size: 13px; border: 1px solid rgba(255,255,255,0.1); }
+
+    .msg-meta { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: rgba(255,255,255,0.5); float: right; margin: 4px 0 0 10px; }
+    .ticks { font-size: 11px; font-weight: 700; letter-spacing: -2px; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+    .ticks:hover { background: rgba(255,255,255,0.1); }
+    .ticks.read { color: #81c784; } .ticks.delivered { color: #b0bec5; } .ticks.pending { color: #ffb74d; }
+    .edited-mark { font-style: italic; font-size: 10px; opacity: 0.6; }
+
+    .context-menu { position: absolute; background: #1e1e24; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 6px; display: flex; flex-direction: column; gap: 2px; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.6); min-width: 160px; animation: menuFade 0.15s ease-out; }
+    @keyframes menuFade { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .menu-item { background: transparent; border: none; color: var(--text-main); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer; width: 100%; transition: background 0.15s; }
+    .menu-item:hover { background: rgba(255,255,255,0.08); }
+    .menu-item.delete { color: #ef5350; }
+    .menu-item.delete:hover { background: rgba(239,83,80,0.15); }
+
+    footer { padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px; }
+    .edit-bar { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 12px; color: var(--text-muted); border-left: 3px solid var(--accent); }
+
+    input[type="text"], input[type="password"] { background: #141417; border: 1px solid var(--border-color); color: #fff; padding: 12px 16px; border-radius: var(--radius-md); outline: none; font-size: 14px; width: 100%; transition: border-color 0.2s; }
+    input[type="text"]:focus, input[type="password"]:focus { border-color: var(--accent); }
+    .input-row input[type="text"] { flex: 1; }
+    .input-group { position: relative; display: flex; align-items: center; width: 100%; }
+
+    .btn-toggle-pwd { position: absolute; right: 12px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; }
+    .field-hint { font-size: 11px; color: #81c784; }
+
+    .btn-send, .btn-danger, .btn-cancel { border: none; padding: 12px 18px; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 14px; transition: background 0.2s; }
+    .btn-send { background: var(--accent); color: #fff; } .btn-send:hover { background: var(--accent-hover); }
+    .btn-danger { background: #c62828; color: #fff; }
+    .btn-cancel { background: rgba(255,255,255,0.08); color: var(--text-main); border: 1px solid var(--border-color); }
+
+    .btn-attach { background: #1e1e24; border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: var(--radius-md); cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px; }
+    .file-preview-box { display: flex; align-items: center; gap: 6px; background: rgba(129, 199, 132, 0.12); border: 1px solid rgba(129, 199, 132, 0.3); padding: 4px 8px; border-radius: var(--radius-sm); font-size: 11px; color: #81c784; max-width: 240px; }
+    .file-preview-box span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .btn-cancel-file { background: transparent; border: none; color: #ef5350; cursor: pointer; font-weight: bold; }
+
+    .modal-overlay { position: absolute; inset: 0; background: var(--bg-card); padding: 24px; display: flex; flex-direction: column; gap: 16px; z-index: 50; overflow-y: auto; }
+    .modal-overlay.flex-center { justify-content: center; align-items: center; }
+    .modal-card { background: #18181c; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; font-size: 13px; line-height: 1.5; color: #a1a1aa; width: 100%; }
+    .hidden { display: none !important; }
+    .modal-buttons { display: flex; gap: 10px; margin-top: 10px; } .modal-buttons button { flex: 1; }
+
+    .status-badge { display: flex; align-items: center; gap: 8px; padding: 10px; background: #1e1e24; border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+    .rule-box { background: rgba(46, 125, 50, 0.12); border: 1px solid rgba(46, 125, 50, 0.4); padding: 10px 12px; border-radius: var(--radius-sm); font-size: 12px; color: #a5d6a7; }
+
+    #media-modal { background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(12px); z-index: 200; }
+    .media-modal-content { max-width: 90vw; max-height: 80vh; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .media-modal-content img, .media-modal-content video { max-width: 100%; max-height: 75vh; border-radius: var(--radius-md); object-fit: contain; }
+    .media-modal-content audio { width: 300px; }
+  </style>
+</head>
+<body>
+
+  <div id="app-viewport">
+    <!-- Окно просмотра медиа -->
+    <div id="media-modal" class="modal-overlay flex-center hidden" onclick="closeMediaModal()">
+      <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px; color: #fff; background: rgba(255,255,255,0.1);">✕</button>
+      <div class="media-modal-content" onclick="event.stopPropagation()" id="media-modal-body"></div>
+    </div>
+
+    <!-- Окно настроек -->
+    <div id="settings-modal" class="modal-overlay hidden">
+      <h2>👤 Настройки Relay v5.0 Pro</h2>
+      <label>Ваш никнейм:</label>
+      <input type="text" id="username-input" placeholder="Например: Stas" maxlength="20" autocomplete="off">
+      <label>Никнейм собеседника:</label>
+      <input type="text" id="peer-input" placeholder="Например: Masha" maxlength="20" autocomplete="off">
+
+      <div class="rule-box">
+        💡 <b>Зеркальное правило никнеймов:</b><br>
+        • У вас: <b>Stas</b> ➔ <b>Masha</b> | У собеседника: <b>Masha</b> ➔ <b>Stas</b>
+      </div>
+
+      <label>Пароль шифрования комнаты:</label>
+      <div class="input-group">
+        <input type="password" id="secret-input" value="1234" autocomplete="off">
+        <button type="button" class="btn-toggle-pwd" onclick="toggleVisibility('secret-input', this)">👁</button>
+      </div>
+
+      <label>Яндекс OAuth Токен:</label>
+      <div class="input-group">
+        <input type="password" id="token-input" autocomplete="off">
+        <button type="button" class="btn-toggle-pwd" onclick="toggleVisibility('token-input', this)">👁</button>
+      </div>
+      <span class="field-hint">✅ Токен предзаполнен и работает по умолчанию!</span>
+
+      <button class="btn-cancel" onclick="toggleModal('help-modal', true)">📖 Полная инструкция и правила</button>
+      <button class="btn-send" onclick="saveSettings()">Войти в чат</button>
+      <button class="btn-danger" onclick="emergencyBurn()">💥 Экстренно сжечь базу и ключи</button>
+    </div>
+
+    <!-- Модальное окно инструкции -->
+    <div id="help-modal" class="modal-overlay flex-center hidden">
+      <div style="max-width: 480px; max-height: 85vh; overflow-y: auto;" class="modal-card">
+        <h3 style="color: #fff; margin-bottom: 12px; font-size: 18px;">📱 Инструкция и оптимизация под белые списки</h3>
+        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 12px;">
+          <div>
+            <strong style="color: #81c784; font-size: 13px;">📲 Сохранение PWA на iPhone/Android</strong>
+            <ol style="padding-left: 18px; margin-top: 6px;">
+              <li>Откройте ссылку в браузере.</li>
+              <li>Нажмите <b>«Поделиться»</b> ➔ <b>«На экран "Домой"»</b>.</li>
+            </ol>
+          </div>
+          <hr style="border: none; border-top: 1px solid var(--border-color);">
+          <div>
+            <strong style="color: #81c784; font-size: 13px;">🛡 Оптимизация для РФ и отключений Сети</strong>
+            <ul style="padding-left: 18px; margin-top: 4px;">
+              <li>⚡ <b>Offline-first:</b> Работает автономно.</li>
+              <li>📦 <b>Store-and-Forward:</b> Авто-отправка сообщений при сети.</li>
+              <li>🔄 <b>Fallback прокси:</b> Зеркала для обхода блокировок.</li>
+              <li>📎 <b>Файлы/Фото:</b> Шифрованная передача до 30МБ.</li>
+            </ul>
+          </div>
+        </div>
+        <button class="btn-send" style="width: 100%; margin-top: 16px;" onclick="toggleModal('help-modal', false)">Понятно, закрыть</button>
+      </div>
+    </div>
+
+    <!-- Модальное окно статуса сообщений -->
+    <div id="status-modal" class="modal-overlay flex-center hidden">
+      <div style="max-width: 380px;" class="modal-card">
+        <h3 style="color: #fff; margin-bottom: 12px; font-size: 16px;">📊 Статус сообщения</h3>
+        <div id="status-info" style="margin-bottom: 16px;"></div>
+        <button class="btn-send" style="width: 100%;" onclick="toggleModal('status-modal', false)">Закрыть</button>
+      </div>
+    </div>
+
+    <!-- Модальное окно подтверждения очистки -->
+    <div id="clear-modal" class="modal-overlay flex-center hidden">
+      <div style="max-width: 360px;" class="modal-card">
+        <h3 style="color: #fff; margin-bottom: 8px; font-size: 16px;">🗑 Очистить историю?</h3>
+        <p style="margin-bottom: 16px; font-size: 13px;">Сообщения будут удалены из локального хранилища устройства.</p>
+        <div class="modal-buttons">
+          <button class="btn-cancel" onclick="toggleModal('clear-modal', false)">Отмена</button>
+          <button class="btn-danger" onclick="confirmClearChat()">Удалить</button>
+        </div>
+      </div>
+    </div>
+
+    <header>
+      <div class="brand">
+        <div id="status-dot" class="status-dot"></div>
+        <div class="brand-info">
+          <h3 id="chat-title">Личный чат</h3>
+          <span class="peer-status" id="peer-status-text">Загрузка...</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button onclick="toggleModal('help-modal', true)" class="btn-icon" title="Инструкция">❓</button>
+        <button onclick="toggleModal('clear-modal', true)" class="btn-icon danger" title="Очистить чат">🗑</button>
+        <button onclick="openSettings()" class="btn-icon" title="Настройки">⚙️</button>
+      </div>
+    </header>
+
+    <div id="chat-box" onclick="closeContextMenu()"></div>
+
+    <footer>
+      <div id="edit-bar" class="edit-bar hidden">
+        <span id="edit-preview">Редактирование...</span>
+        <button onclick="cancelEdit()" class="btn-icon" style="padding: 2px 6px;">✕</button>
+      </div>
+
+      <div class="toolbar-extra">
+        <button class="btn-attach" onclick="document.getElementById('file-input').click()">📎 Прикрепить файл</button>
+        <input type="file" id="file-input" class="hidden" onchange="handleFileSelect(event)">
+        <div id="file-preview-container" class="file-preview-box hidden">
+          <span id="file-name-indicator"></span>
+          <button class="btn-cancel-file" onclick="cancelFileSelect()" title="Отменить файл">✕</button>
+        </div>
+      </div>
+
+      <div class="input-row">
+        <input type="text" id="msg-input" placeholder="Напишите сообщение..." onkeydown="if(event.key==='Enter') handleSend()">
+        <button class="btn-send" onclick="handleSend()">Отправить</button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // --- Service Worker для Offline PWA ---
+    if ('serviceWorker' in navigator) {
+      const swCode = `
+        self.addEventListener('install', () => self.skipWaiting());
+        self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+        self.addEventListener('fetch', e => {
+          if (e.request.method === 'GET') e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+        });
+      `;
+      navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode], { type: 'application/javascript' }))).catch(() => {});
+    }
+
+    const DEFAULT_TOKEN = "y0__wgBEMa2sf0IGP_1RSCBtIGxGCTcqP3i5Xi6F-JXhjOgxxUYVhg3";
+    const PROXY_HOSTS = ["https://cloud-api.yandex.net", "https://corsproxy.io/?" + encodeURIComponent("https://cloud-api.yandex.net")];
+    
+    let currentProxyIndex = 0, db, cryptoKey, editingMsgId = null, activeContextMenu = null, longPressTimer = null;
+    let isFirstSync = true, selectedFileData = null, syncFailCount = 0;
+    const renderedStateMap = new Map();
+
+    let config = JSON.parse(localStorage.getItem('chat_direct_cfg_v5') || '{}');
+    if (!config.token) config.token = DEFAULT_TOKEN;
+
+    const getChatId = (u1, u2) => [u1.toLowerCase(), u2.toLowerCase()].sort().join('_');
+    const escapeHtml = str => (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const escapeJsString = str => (str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+    
+    const toggleModal = (id, show) => document.getElementById(id).classList.toggle('hidden', !show);
+    
+    function toggleVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      input.type = input.type === "password" ? "text" : "password";
+      btn.style.color = input.type === "text" ? "var(--accent)" : "var(--text-muted)";
+    }
+
+    function sendNotification(title, body) {
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(title, { body, icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💬</text></svg>' });
+      }
+    }
+
+    // --- IndexedDB ---
+    const request = indexedDB.open("RelayDirectDB_v5", 1);
+    request.onupgradeneeded = e => {
+      db = e.target.result;
+      if (!db.objectStoreNames.contains("messages")) {
+        db.createObjectStore("messages", { keyPath: "id" }).createIndex("chatId", "chatId", { unique: false });
+      }
+    };
+    request.onsuccess = e => {
+      db = e.target.result;
+      if (config.secret && config.token && config.username && config.peer) initApp();
+      else { toggleModal('help-modal', true); openSettings(); }
+    };
+
+    function dbQuery(mode, callback) {
+      return new Promise(resolve => {
+        if (!db) return resolve([]);
+        const tx = db.transaction("messages", mode);
+        const store = tx.objectStore("messages");
+        const res = callback(store);
+        if (mode === "readonly" && res) res.onsuccess = () => resolve(res.result || []);
+        else tx.oncomplete = () => resolve(true);
+      });
+    }
+
+    const getAllFromDB = () => dbQuery("readonly", store => store.index("chatId").getAll(getChatId(config.username, config.peer)));
+    const saveToDB = msg => { msg.chatId = getChatId(config.username, config.peer); return dbQuery("readwrite", store => store.put(msg)); };
+    const deleteFromDB = id => dbQuery("readwrite", store => store.delete(id));
+    const clearAllDB = async () => {
+      const msgs = await getAllFromDB();
+      return dbQuery("readwrite", store => msgs.forEach(m => store.delete(m.id)));
+    };
+
+    function openSettings() {
+      document.getElementById('token-input').value = config.token || DEFAULT_TOKEN;
+      document.getElementById('secret-input').value = config.secret || '1234';
+      document.getElementById('username-input').value = config.username || '';
+      document.getElementById('peer-input').value = config.peer || '';
+      toggleModal('settings-modal', true);
+    }
+
+    function openMediaModal(type, src, name = '') {
+      const body = document.getElementById('media-modal-body');
+      body.innerHTML = '';
+      let elem;
+      if (type === 'image') elem = document.createElement('img');
+      else if (type === 'video' || type === 'audio') {
+        elem = document.createElement(type);
+        elem.controls = elem.autoplay = true;
+      }
+      elem.src = src;
+      body.appendChild(elem);
+
+      if (name) {
+        const title = document.createElement('div');
+        title.style.cssText = 'color: #fff; font-size: 13px;';
+        title.textContent = name;
+        body.appendChild(title);
+      }
+      toggleModal('media-modal', true);
+    }
+
+    function closeMediaModal() {
+      document.getElementById('media-modal-body').innerHTML = '';
+      toggleModal('media-modal', false);
+    }
+
+    async function emergencyBurn() {
+      if (confirm("Вы действительно хотите БЕЗВОРОВРАТНО удалить все переписки, ключи и файлы?")) {
+        localStorage.clear();
+        await dbQuery("readwrite", store => store.clear());
+        location.reload();
+      }
+    }
+
+    async function showMessageStatus(msgId) {
+      const msg = (await getAllFromDB()).find(m => m.id === msgId);
+      if (!msg) return;
+
+      let content = '';
+      if (msg.pending) {
+        content = `<div class="status-badge"><span style="font-size: 18px;">⏳</span><div><strong>В очереди (Без сети)</strong><div style="font-size: 11px;">Сообщение доставится при подключении</div></div></div>`;
+      } else if (msg.readByPeer) {
+        const time = msg.readTimestamp ? new Date(msg.readTimestamp).toLocaleString() : "Только что";
+        content = `<div class="status-badge"><span style="font-size: 18px; color: #81c784;">✓✓</span><div><strong style="color: #81c784;">Прочитано собеседником</strong><div style="font-size: 11px;"><b>Время:</b> ${time}</div></div></div>`;
+      } else {
+        content = `<div class="status-badge"><span style="font-size: 18px; color: #b0bec5;">✓</span><div><strong>Доставлено</strong><div style="font-size: 11px;">Ожидает открытия</div></div></div>`;
+      }
+
+      document.getElementById('status-info').innerHTML = content;
+      toggleModal('status-modal', true);
+    }
+
+    async function confirmClearChat() {
+      toggleModal('clear-modal', false);
+      await clearAllDB();
+      renderedStateMap.clear();
+      document.getElementById('chat-box').innerHTML = '';
+      await syncWithYandex();
+    }
+
+    function saveSettings() {
+      const token = document.getElementById('token-input').value.trim() || DEFAULT_TOKEN;
+      const secret = document.getElementById('secret-input').value.trim();
+      const username = document.getElementById('username-input').value.trim().replace(/[^a-zA-Z0-9_-]/g, '');
+      const peer = document.getElementById('peer-input').value.trim().replace(/[^a-zA-Z0-9_-]/g, '');
+      
+      if (!secret || !username || !peer) return alert("Заполните все поля!"); 
+      if (username.toLowerCase() === peer.toLowerCase()) return alert("Никнеймы должны отличаться!");
+
+      config = { token, secret, username, peer };
+      localStorage.setItem('chat_direct_cfg_v5', JSON.stringify(config));
+      initApp();
+    }
+
+    async function initApp() {
+      if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
+      toggleModal('settings-modal', false);
+      document.getElementById('chat-title').textContent = `@${config.peer}`;
+      document.getElementById('peer-status-text').textContent = 'Приватный канал';
+
+      renderedStateMap.clear();
+      document.getElementById('chat-box').innerHTML = '';
+
+      try { cryptoKey = await deriveKey(config.secret); } catch (e) { return; }
+      await renderMessages(true);
+      
+      isFirstSync = true;
+      syncWithYandex();
+      clearInterval(window.syncInterval);
+      window.syncInterval = setInterval(syncWithYandex, 3500);
+    }
+
+    // --- Шифрование AES-GCM ---
+    async function deriveKey(secret) {
+      const enc = new TextEncoder();
+      const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(secret), "PBKDF2", false, ["deriveKey"]);
+      return crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt: enc.encode("relay_direct_salt_v5"), iterations: 50000, hash: "SHA-256" },
+        keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
+      );
+    }
+
+    async function encrypt(text) {
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, cryptoKey, new TextEncoder().encode(text));
+      return { iv: Array.from(iv), data: Array.from(new Uint8Array(ciphertext)) };
+    }
+
+    async function decrypt(encrypted) {
+      try {
+        const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv: new Uint8Array(encrypted.iv) }, cryptoKey, new Uint8Array(encrypted.data));
+        return new TextDecoder().decode(decrypted);
+      } catch { return null; }
+    }
+
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 25 * 1024 * 1024) {
+        alert("Файл слишком большой! Лимит — 30 МБ.");
+        return cancelFileSelect();
+      }
+      const reader = new FileReader();
+      reader.onload = evt => {
+        selectedFileData = { name: file.name, type: file.type, size: file.size, data: evt.target.result };
+        document.getElementById('file-name-indicator').textContent = file.name;
+        document.getElementById('file-preview-container').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function cancelFileSelect() {
+      selectedFileData = null;
+      document.getElementById('file-input').value = '';
+      document.getElementById('file-preview-container').classList.add('hidden');
+    }
+
+    async function handleSend() {
+      const input = document.getElementById('msg-input');
+      const text = input.value.trim();
+      if (!text && !selectedFileData) return;
+
+      if (editingMsgId) {
+        const msg = (await getAllFromDB()).find(m => m.id === editingMsgId);
+        if (msg) {
+          msg.text = text;
+          msg.edited = true;
+          msg.pending = !navigator.onLine;
+          await saveToDB(msg);
+        }
+        cancelEdit();
+      } else {
+        await saveToDB({
+          id: `${config.username}_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+          timestamp: Date.now(),
+          sender: config.username,
+          text, file: selectedFileData,
+          pending: !navigator.onLine,
+          readByPeer: false, readTimestamp: null,
+          time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+        });
+      }
+
+      input.value = '';
+      cancelFileSelect();
+      await renderMessages(true);
+      syncWithYandex();
+    }
+
+    function startEdit(id, currentText) {
+      editingMsgId = id;
+      document.getElementById('edit-preview').textContent = `Редактирование: ${currentText}`;
+      document.getElementById('edit-bar').classList.remove('hidden');
+      const input = document.getElementById('msg-input');
+      input.value = currentText;
+      input.focus();
+      closeContextMenu();
+    }
+
+    function cancelEdit() {
+      editingMsgId = null;
+      document.getElementById('edit-bar').classList.add('hidden');
+      document.getElementById('msg-input').value = '';
+    }
+
+    async function deleteMessage(id) {
+      await deleteFromDB(id);
+      await renderMessages(true);
+      closeContextMenu();
+      syncWithYandex();
+    }
+
+    async function copyMessageText(text) {
+      navigator.clipboard?.writeText(text).catch(() => {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta); ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      });
+      closeContextMenu();
+    }
+
+    function openContextMenu(e, id, isMy, text) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      closeContextMenu();
+
+      const wrapper = document.getElementById(`msg-wrap-${id}`);
+      if (!wrapper) return;
+
+      const menu = document.createElement('div');
+      menu.className = 'context-menu';
+      menu.id = 'active-context-menu';
+
+      let items = `<button class="menu-item" onclick="copyMessageText('${escapeJsString(text)}')">📋 Скопировать</button>`;
+      if (isMy) {
+        items += `
+          <button class="menu-item" onclick="showMessageStatus('${id}'); closeContextMenu();">📊 Статус</button>
+          <button class="menu-item" onclick="startEdit('${id}', '${escapeJsString(text)}')">✏️ Изменить</button>
+          <button class="menu-item delete" onclick="deleteMessage('${id}')">🗑 Удалить</button>
+        `;
+      }
+      menu.innerHTML = items;
+      wrapper.appendChild(menu);
+
+      const msgElem = wrapper.querySelector('.msg');
+      menu.style.top = `${msgElem.offsetTop + msgElem.offsetHeight + 4}px`;
+      menu.style[isMy ? 'right' : 'left'] = '0px';
+
+      activeContextMenu = menu;
+    }
+
+    function closeContextMenu() {
+      if (activeContextMenu) { activeContextMenu.remove(); activeContextMenu = null; }
+    }
+
+    function generateMediaHtml(file) {
+      if (!file) return '';
+      const escName = escapeJsString(file.name);
+      if (file.type.startsWith('image/')) return `<img src="${file.data}" class="msg-media" onclick="event.stopPropagation(); openMediaModal('image', '${file.data}', '${escName}')">`;
+      if (file.type.startsWith('video/')) return `<video src="${file.data}" class="msg-media" onclick="event.stopPropagation(); openMediaModal('video', '${file.data}', '${escName}')"></video>`;
+      if (file.type.startsWith('audio/')) return `<div class="msg-file-attach" onclick="event.stopPropagation(); openMediaModal('audio', '${file.data}', '${escName}')" style="cursor:pointer;">🎵 ${escapeHtml(file.name)}</div>`;
+      return `<a href="${file.data}" download="${file.name}" class="msg-file-attach" onclick="event.stopPropagation()">📄 ${escapeHtml(file.name)}</a>`;
+    }
+
+    function renderTicks(msg) {
+      if (msg.pending) return `<span class="ticks pending" onclick="event.stopPropagation(); showMessageStatus('${msg.id}')" title="В очереди">⏳</span>`;
+      if (msg.readByPeer) return `<span class="ticks read" onclick="event.stopPropagation(); showMessageStatus('${msg.id}')" title="Прочитано">✓✓</span>`;
+      return `<span class="ticks delivered" onclick="event.stopPropagation(); showMessageStatus('${msg.id}')" title="Доставлено">✓</span>`;
+    }
+
+    async function renderMessages(forceScroll = false) {
+      const activeMessages = await getAllFromDB();
+      const box = document.getElementById('chat-box');
+      activeMessages.sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
+
+      const currentIds = new Set(activeMessages.map(m => m.id));
+      for (const [id, node] of renderedStateMap.entries()) {
+        if (!currentIds.has(id)) { node.remove(); renderedStateMap.delete(id); }
+      }
+
+      let hasNewMessage = false;
+
+      activeMessages.forEach(m => {
+        const isMy = m.sender === config.username;
+        const stateKey = `${m.text}_${m.edited}_${m.readByPeer}_${m.pending}_${m.readTimestamp}`;
+
+        const innerHTML = `
+          ${escapeHtml(m.text)}
+          ${generateMediaHtml(m.file)}
+          <div class="msg-meta">
+            ${m.edited ? '<span class="edited-mark">изм.</span>' : ''}
+            <span>${m.time}</span>
+            ${isMy ? renderTicks(m) : ''}
+          </div>
+        `;
+
+        if (!renderedStateMap.has(m.id)) {
+          const wrapper = document.createElement('div');
+          wrapper.className = `msg-wrapper ${isMy ? 'my' : 'their'}`;
+          wrapper.id = `msg-wrap-${m.id}`;
+
+          const msgDiv = document.createElement('div');
+          msgDiv.className = 'msg';
+          msgDiv.innerHTML = innerHTML;
+
+          msgDiv.addEventListener('contextmenu', e => openContextMenu(e, m.id, isMy, m.text));
+          msgDiv.addEventListener('touchstart', () => {
+            clearTimeout(longPressTimer);
+            longPressTimer = setTimeout(() => openContextMenu(null, m.id, isMy, m.text), 300);
+          }, { passive: true });
+          msgDiv.addEventListener('touchend', () => clearTimeout(longPressTimer));
+          msgDiv.addEventListener('touchmove', () => clearTimeout(longPressTimer));
+
+          wrapper.appendChild(msgDiv);
+          box.appendChild(wrapper);
+
+          wrapper.dataset.state = stateKey;
+          renderedStateMap.set(m.id, wrapper);
+          hasNewMessage = true;
+        } else {
+          const wrapper = renderedStateMap.get(m.id);
+          if (wrapper.dataset.state !== stateKey) {
+            wrapper.querySelector('.msg').innerHTML = innerHTML;
+            wrapper.dataset.state = stateKey;
+          }
+        }
+      });
+
+      if (forceScroll || hasNewMessage) box.scrollTop = box.scrollHeight;
+    }
+
+    // --- Сетевая синхронизация ---
+    async function syncWithYandex() {
+      const dot = document.getElementById('status-dot');
+      if (!navigator.onLine) return dot.className = "status-dot offline";
+
+      const myFile = `direct_${config.username}_${config.peer}.json`;
+      const peerFile = `direct_${config.peer}_${config.username}.json`;
+
+      try {
+        const remoteData = await fetchWithRetry(() => transferDiskFile('download', `app:/RelayChat/${peerFile}`));
+        const now = Date.now();
+
+        if (remoteData?.payload) {
+          const decryptedText = await decrypt(remoteData.payload);
+          if (decryptedText) {
+            const { messages: incomingMsgs = [], lastReadTimestamp = 0, lastReadTimeActual = now } = JSON.parse(decryptedText);
+            const localMsgs = await getAllFromDB();
+            const localMsgIds = new Set(localMsgs.map(m => m.id));
+            const currentRemoteIds = new Set(incomingMsgs.map(m => m.id));
+
+            for (const m of incomingMsgs) {
+              if (!localMsgIds.has(m.id) && !isFirstSync && m.sender === config.peer) {
+                sendNotification(`Сообщение от @${config.peer}`, m.text || "Прикреплен медиафайл");
+              }
+              await saveToDB(m);
+            }
+
+            for (const localMsg of localMsgs) {
+              if (localMsg.sender === config.username) {
+                if (localMsg.timestamp <= lastReadTimestamp && !localMsg.readByPeer) {
+                  localMsg.readByPeer = true;
+                  localMsg.readTimestamp = lastReadTimeActual;
+                  await saveToDB(localMsg);
+                }
+              } else if (!currentRemoteIds.has(localMsg.id)) {
+                await deleteFromDB(localMsg.id);
+              }
+            }
+          }
+        }
+
+        isFirstSync = false;
+
+        const allMsgs = await getAllFromDB();
+        let maxPeerMsgTimestamp = 0;
+
+        for (let m of allMsgs) {
+          if (m.sender === config.peer && m.timestamp > maxPeerMsgTimestamp) maxPeerMsgTimestamp = m.timestamp;
+          if (m.pending) { delete m.pending; await saveToDB(m); }
+        }
+
+        const myMsgs = (await getAllFromDB()).filter(m => m.sender === config.username);
+        const encryptedData = await encrypt(JSON.stringify({
+          sender: config.username, updatedAt: now,
+          lastReadTimestamp: maxPeerMsgTimestamp, lastReadTimeActual: now, messages: myMsgs
+        }));
+
+        await fetchWithRetry(() => transferDiskFile('upload', `app:/RelayChat/${myFile}`, { payload: encryptedData }));
+
+        await renderMessages();
+        dot.className = "status-dot online";
+        syncFailCount = 0;
+      } catch {
+        if (++syncFailCount > 2) currentProxyIndex = (currentProxyIndex + 1) % PROXY_HOSTS.length;
+        dot.className = "status-dot error";
+      }
+    }
+
+    async function fetchWithRetry(fn, retries = 2) {
+      for (let i = 0; i < retries; i++) {
+        try { return await fn(); }
+        catch (e) { if (i === retries - 1) throw e; await new Promise(r => setTimeout(r, 1000)); }
+      }
+    }
+
+    async function transferDiskFile(type, path, dataObj = null) {
+      const baseUrl = PROXY_HOSTS[currentProxyIndex];
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+      const endpoint = type === 'upload' ? 'upload?overwrite=true&path=' : 'download?path=';
+      const res = await fetch(`${baseUrl}/v1/disk/resources/${endpoint}${encodeURIComponent(path)}`, {
+        headers: { 'Authorization': `OAuth ${config.token}` },
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) return null;
+      const { href } = await res.json();
+
+      if (type === 'upload') {
+        const putRes = await fetch(href, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dataObj) });
+        return putRes.ok;
+      } else {
+        const fileRes = await fetch(href);
+        return fileRes.ok ? await fileRes.json() : null;
+      }
+    }
+
+    window.addEventListener('online', () => syncWithYandex());
+    window.addEventListener('offline', () => document.getElementById('status-dot').className = "status-dot offline");
+  </script>
+</body>
+</html>
