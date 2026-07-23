@@ -932,7 +932,7 @@
       const file = e.target.files[0];
       if (!file) return;
 
-      if (file.size > 30 * 1024 * 1024) {
+      if (file.size > 350 * 1024 * 1024) {
         alert("Файл слишком большой! Лимит для пересылки — 30 МБ.");
         cancelFileSelect();
         return;
