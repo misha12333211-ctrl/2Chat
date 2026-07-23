@@ -1,5 +1,7 @@
 {
-  "appId": "com.mycompany.myapp",
-  "appName": "MyHTMLApp",
-  "webDir": "www"
+  "appId": "com.misha.chat",
+  "appName": "2Chat",
+  "webDir": "www",
+  "bundledWebRuntime": false
 }
+
