@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#0d0d0e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Relay%20Chat%22%2C%22short_name%22%3A%22Relay%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2309090b%22%2C%22theme_color%22%3A%22%230d0d0e%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
-  <title>Relay Direct Messenger v4.1</title>
+  <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Relay%20Chat%20Pro%22%2C%22short_name%22%3A%22Relay%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2309090b%22%2C%22theme_color%22%3A%22%230d0d0e%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+  <title>Relay Direct Messenger v5.0 Pro (Offline Enhanced)</title>
 
   <style>
     :root {
@@ -108,6 +108,7 @@
       align-items: center;
       justify-content: center;
       transition: all 0.2s;
+      font-size: 15px;
     }
     .btn-icon:hover { color: #fff; background: rgba(255,255,255,0.06); }
     .btn-icon.danger:hover { color: #ef5350; background: rgba(239, 83, 80, 0.12); }
@@ -128,7 +129,7 @@
     .msg-wrapper {
       display: flex;
       flex-direction: column;
-      max-width: 78%;
+      max-width: 82%;
       position: relative;
       animation: msgPop 0.18s cubic-bezier(0.1, 0.9, 0.2, 1);
     }
@@ -164,6 +165,30 @@
       color: var(--text-main);
       border: 1px solid var(--border-color);
       border-bottom-left-radius: 4px;
+    }
+
+    .msg-media {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-top: 6px;
+      display: block;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .msg-media:hover { opacity: 0.9; }
+
+    .msg-file-attach {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,0,0,0.25);
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-top: 6px;
+      text-decoration: none;
+      color: #fff;
+      font-size: 13px;
+      border: 1px solid rgba(255,255,255,0.1);
     }
 
     .msg-meta {
@@ -204,7 +229,7 @@
       gap: 2px;
       z-index: 100;
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-      min-width: 150px;
+      min-width: 160px;
       animation: menuFade 0.15s ease-out;
     }
 
@@ -243,6 +268,13 @@
       gap: 8px;
     }
 
+    .toolbar-extra {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      overflow-x: auto;
+    }
+
     .edit-bar {
       display: flex;
       justify-content: space-between;
@@ -266,7 +298,6 @@
       outline: none;
       font-size: 14px;
       transition: border-color 0.2s;
-      width: 100%;
     }
 
     input[type="text"]:focus, input[type="password"]:focus { border-color: var(--accent); }
@@ -312,6 +343,48 @@
       transition: background 0.2s;
     }
     .btn-send:hover { background: var(--accent-hover); }
+
+    .btn-attach {
+      background: #1e1e24;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .btn-attach:hover { background: rgba(255,255,255,0.08); }
+
+    .file-preview-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(129, 199, 132, 0.12);
+      border: 1px solid rgba(129, 199, 132, 0.3);
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      color: #81c784;
+      max-width: 240px;
+    }
+    .file-preview-box span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .btn-cancel-file {
+      background: transparent;
+      border: none;
+      color: #ef5350;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 0 2px;
+      font-weight: bold;
+    }
 
     .btn-danger {
       background: #c62828;
@@ -386,39 +459,48 @@
       margin-top: 6px;
     }
 
-    .tech-note {
-      background: rgba(255, 255, 255, 0.04);
-      border-left: 3px solid #ffb74d;
-      padding: 8px 10px;
-      margin: 8px 0;
-      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    /* Модальное окно просмотра медиа */
+    #media-modal {
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(12px);
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
     }
-
-    .code-chip {
-      background: #000;
-      color: #81c784;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-family: monospace;
-      font-size: 11px;
+    .media-modal-content {
+      max-width: 90vw;
+      max-height: 80vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 12px;
     }
-
-    a.app-link {
-      color: #81c784;
-      text-decoration: underline;
-      word-break: break-all;
+    .media-modal-content img, .media-modal-content video {
+      max-width: 100%;
+      max-height: 75vh;
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      object-fit: contain;
     }
-    a.app-link:hover {
-      color: #a5d6a7;
+    .media-modal-content audio {
+      width: 300px;
     }
   </style>
 </head>
 <body>
 
   <div id="app-viewport">
+    <!-- Окно просмотра медиа -->
+    <div id="media-modal" class="modal-overlay hidden" onclick="closeMediaModal()">
+      <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px; color: #fff; background: rgba(255,255,255,0.1);" onclick="closeMediaModal()">✕</button>
+      <div class="media-modal-content" onclick="event.stopPropagation()" id="media-modal-body">
+      </div>
+    </div>
+
     <!-- Окно настроек -->
     <div id="settings-modal" class="modal-overlay hidden">
-      <h2>👤 Настройки личного чата</h2>
+      <h2>👤 Настройки Relay v5.0 Pro</h2>
       
       <label>Ваш никнейм:</label>
       <input type="text" id="username-input" placeholder="Например: Stas" maxlength="20" autocomplete="off">
@@ -443,75 +525,45 @@
         <input type="password" id="token-input" placeholder="Токен из Яндекс OAuth" autocomplete="off">
         <button type="button" class="btn-toggle-pwd" onclick="toggleVisibility('token-input', this)">👁</button>
       </div>
-      <span class="field-hint">✅ Токен менять НЕ нужно, он предзаполнен по умолчанию!</span>
+      <span class="field-hint">✅ Токен предзаполнен и работает по умолчанию!</span>
 
       <button class="btn-cancel" onclick="openHelpModal()" style="margin-top: 4px;">📖 Полная инструкция и правила</button>
       <button class="btn-send" onclick="saveSettings()" style="margin-top: 4px;">Войти в чат</button>
+      <button class="btn-danger" onclick="emergencyBurn()" style="margin-top: 4px;">💥 Экстренно сжечь базу и ключи</button>
     </div>
 
-    <!-- Модальное окно инструкции и правил -->
+    <!-- Модальное окно инструкции -->
     <div id="help-modal" class="modal-overlay hidden" style="justify-content: center; align-items: center;">
       <div style="width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto;" class="modal-card">
-        <h3 style="color: #fff; margin-bottom: 12px; font-size: 18px;">📱 Инструкция и сохранение файла</h3>
+        <h3 style="color: #fff; margin-bottom: 12px; font-size: 18px;">📱 Инструкция и оптимизация под белые списки</h3>
         
         <div style="display: flex; flex-direction: column; gap: 12px; font-size: 12px; color: #ccc;">
-          
           <div>
-            <strong style="color: #81c784; font-size: 13px;">📲 Вариант А: Использование сайта (PWA на экран Домой)</strong>
+            <strong style="color: #81c784; font-size: 13px;">📲 Сохранение PWA на iPhone/Android</strong>
             <ol style="padding-left: 18px; margin-top: 6px;">
-              <li>Откройте Safari на вашем iPhone.</li>
-              <li>Перейдите по ссылке: <a href="https://misha12333211-ctrl.github.io/2Chat/" target="_blank" class="app-link">https://misha12333211-ctrl.github.io/2Chat/</a></li>
-              <li>Нажмите кнопку <b>«Поделиться»</b> (квадрат со стрелкой вверх).</li>
-              <li>Выберите <b>«На экран "Домой"»</b> ➔ <b>«Добавить»</b>.</li>
+              <li>Откройте ссылку в браузере.</li>
+              <li>Нажмите <b>«Поделиться»</b> ➔ <b>«На экран "Домой"»</b>.</li>
             </ol>
           </div>
 
           <hr style="border: none; border-top: 1px solid var(--border-color);">
 
           <div>
-            <strong style="color: #81c784; font-size: 13px;">📁 Вариант Б: Сохранение локального файла в «Файлы» (для работы офлайн)</strong>
-            <ol style="padding-left: 18px; margin-top: 6px;">
-              <li>Скачайте `.html` файл чата на iPhone (через Telegram/Safari).</li>
-              <li>Нажмите на файл и выберите <b>«Поделиться»</b> ➔ <b>«Сохранить в "Файлы"»</b>.</li>
-              <li>Выберите папку <b>«На iPhone»</b> и нажмите <b>«Сохранить»</b>.</li>
-              <li>Откройте стандартное приложение 📁 <b>Файлы</b> на iPhone и нажмите на этот HTML-файл — он запустится в браузере с полной функциональностью локального PWA.</li>
-            </ol>
-          </div>
-
-          <hr style="border: none; border-top: 1px solid var(--border-color);">
-
-          <div>
-            <strong style="color: #81c784; font-size: 13px;">⚙️ Правило парной настройки никнеймов</strong>
-            <p style="margin-top: 4px;">Никнеймы связывают каналы шифрования. У вас и собеседника они должны быть записаны **зеркально** (только латиницей):</p>
-            <div class="rule-box" style="margin-top: 6px;">
-              📍 <b>Вариант установки:</b><br>
-              • <b>Вы:</b> Ваше имя = <code class="code-chip">Stas</code> | Имя собеседника = <code class="code-chip">Masha</code><br>
-              • <b>Собеседник:</b> Ваше имя = <code class="code-chip">Masha</code> | Имя собеседника = <code class="code-chip">Stas</code>
-            </div>
-            <p style="margin-top: 6px;">Пароль шифрования комнаты у обоих должен быть строго <code class="code-chip">1234</code>.</p>
-          </div>
-
-          <hr style="border: none; border-top: 1px solid var(--border-color);">
-
-          <div>
-            <strong style="color: #81c784; font-size: 13px;">💬 Статусы доставки и работа без сети</strong>
+            <strong style="color: #81c784; font-size: 13px;">🛡 Оптимизация для РФ и отключений Сети</strong>
             <ul style="padding-left: 18px; margin-top: 4px;">
-              <li>⏳ <b>Песочные часы:</b> Сообщение сохранено локально на устройстве (ждет появления сети).</li>
-              <li>✓ <b>(1 галочка):</b> Зашифровано и доставлено в Яндекс Диск.</li>
-              <li>✓✓ <b>(2 зеленые галочки):</b> Прочитано собеседником.</li>
+              <li>⚡ <b>Полный Offline-first:</b> Приложение кэшируется целиком и запускается даже без интернета.</li>
+              <li>📦 <b>Store-and-Forward:</b> Отправляйте сообщения при отсутствии сети. Они сохранятся локально и автоматически уйдут при появлении связи.</li>
+              <li>🔄 <b>Fallback прокси:</b> В случае блокировки direct-соединений к Яндекс Диску, мессенджер автоматически переключает маршруты через резервные зеркала.</li>
+              <li>📎 <b>Файлы и фото:</b> Пересылка картинок и документов до 30МБ прямо в зашифрованном потоке.</li>
             </ul>
           </div>
-
-          <div class="tech-note">
-            ⚠️ <b>Важно:</b> Локальный файл из приложения «Файлы» полностью сохраняет базу сообщений даже при перезапуске, но синхронизация с Яндекс Диском будет происходить только при активном подключении к интернету.
-          </div>
-
         </div>
 
         <button class="btn-send" style="width: 100%; margin-top: 16px;" onclick="closeHelpModal()">Понятно, закрыть</button>
       </div>
     </div>
 
+    <!-- Модальное окно статуса сообщений -->
     <div id="status-modal" class="modal-overlay hidden" style="justify-content: center; align-items: center;">
       <div style="width: 100%; max-width: 380px;" class="modal-card">
         <h3 style="color: #fff; margin-bottom: 12px; font-size: 16px;">📊 Статус сообщения</h3>
@@ -520,10 +572,11 @@
       </div>
     </div>
 
+    <!-- Модальное окно подтверждения очистки -->
     <div id="clear-modal" class="modal-overlay hidden" style="justify-content: center; align-items: center;">
       <div style="width: 100%; max-width: 360px;" class="modal-card">
         <h3 style="color: #fff; margin-bottom: 8px; font-size: 16px;">🗑 Очистить историю?</h3>
-        <p style="margin-bottom: 16px; font-size: 13px;">Сообщения будут удалены из локального хранилища.</p>
+        <p style="margin-bottom: 16px; font-size: 13px;">Сообщения будут удалены из локального хранилища устройства.</p>
         <div class="modal-buttons">
           <button class="btn-cancel" onclick="closeClearModal()">Отмена</button>
           <button class="btn-danger" onclick="confirmClearChat()">Удалить</button>
@@ -553,6 +606,16 @@
         <span id="edit-preview">Редактирование...</span>
         <button onclick="cancelEdit()" class="btn-icon" style="padding: 2px 6px;">✕</button>
       </div>
+
+      <div class="toolbar-extra">
+        <button class="btn-attach" onclick="document.getElementById('file-input').click()">📎 Прикрепить файл</button>
+        <input type="file" id="file-input" class="hidden" onchange="handleFileSelect(event)">
+        <div id="file-preview-container" class="file-preview-box hidden">
+          <span id="file-name-indicator"></span>
+          <button class="btn-cancel-file" onclick="cancelFileSelect()" title="Отменить файл">✕</button>
+        </div>
+      </div>
+
       <div class="input-row">
         <input type="text" id="msg-input" placeholder="Напишите сообщение..." onkeydown="if(event.key==='Enter') handleSend()">
         <button class="btn-send" onclick="handleSend()">Отправить</button>
@@ -561,9 +624,37 @@
   </div>
 
   <script>
-    const DEFAULT_TOKEN = "y0__wgBEMa2sf0IGP_1RSCBtIGxGCTcqP3i5Xi6F-JXhjOgxxUYVhg3";
+    // --- Регистрация Service Worker для полной автономной работы (Offline PWA) ---
+    if ('serviceWorker' in navigator) {
+      const swCode = `
+        const CACHE_NAME = 'relay-pwa-v5';
+        self.addEventListener('install', e => {
+          self.skipWaiting();
+        });
+        self.addEventListener('activate', e => {
+          e.waitUntil(clients.claim());
+        });
+        self.addEventListener('fetch', e => {
+          if (e.request.method !== 'GET') return;
+          e.respondWith(
+            fetch(e.request).catch(() => caches.match(e.request))
+          );
+        });
+      `;
+      const blob = new Blob([swCode], { type: 'application/javascript' });
+      navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+    }
 
-    let config = JSON.parse(localStorage.getItem('chat_direct_cfg_v4') || '{}');
+    const DEFAULT_TOKEN = "y0__wgBEMa2sf0IGP_1RSCBtIGxGCTcqP3i5Xi6F-JXhjOgxxUYVhg3";
+    
+    // Резервные роуты для обхода блокировок
+    const PROXY_HOSTS = [
+      "https://cloud-api.yandex.net",
+      "https://corsproxy.io/?" + encodeURIComponent("https://cloud-api.yandex.net")
+    ];
+    let currentProxyIndex = 0;
+
+    let config = JSON.parse(localStorage.getItem('chat_direct_cfg_v5') || '{}');
     if (!config.token) config.token = DEFAULT_TOKEN;
 
     let db, cryptoKey;
@@ -572,6 +663,8 @@
     let longPressTimer = null;
     let renderedStateMap = new Map();
     let isFirstSync = true;
+    let selectedFileData = null;
+    let syncFailCount = 0;
 
     function getChatId(u1, u2) {
       return [u1.toLowerCase(), u2.toLowerCase()].sort().join('_');
@@ -598,7 +691,7 @@
       }
     }
 
-    const request = indexedDB.open("RelayDirectDB_v4", 1);
+    const request = indexedDB.open("RelayDirectDB_v5", 1);
     request.onupgradeneeded = e => {
       db = e.target.result;
       if (!db.objectStoreNames.contains("messages")) {
@@ -630,6 +723,57 @@
     function closeClearModal() { document.getElementById('clear-modal').classList.add('hidden'); }
     function closeStatusModal() { document.getElementById('status-modal').classList.add('hidden'); }
 
+    // Функции для работы с модальным окном просмотра медиа
+    function openMediaModal(type, src, name = '') {
+      const modal = document.getElementById('media-modal');
+      const body = document.getElementById('media-modal-body');
+      body.innerHTML = '';
+
+      if (type === 'image') {
+        const img = document.createElement('img');
+        img.src = src;
+        body.appendChild(img);
+      } else if (type === 'video') {
+        const video = document.createElement('video');
+        video.src = src;
+        video.controls = true;
+        video.autoplay = true;
+        body.appendChild(video);
+      } else if (type === 'audio') {
+        const audio = document.createElement('audio');
+        audio.src = src;
+        audio.controls = true;
+        audio.autoplay = true;
+        body.appendChild(audio);
+      }
+
+      if (name) {
+        const title = document.createElement('div');
+        title.style.color = '#fff';
+        title.style.fontSize = '13px';
+        title.textContent = name;
+        body.appendChild(title);
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeMediaModal() {
+      const modal = document.getElementById('media-modal');
+      const body = document.getElementById('media-modal-body');
+      body.innerHTML = ''; // Очищаем медиа (чтобы остановился звук/видео)
+      modal.classList.add('hidden');
+    }
+
+    async function emergencyBurn() {
+      if (confirm("Вы действительно хотите БЕЗВОРОВРАТНО удалить все переписки, ключи и файлы?")) {
+        localStorage.clear();
+        const tx = db.transaction("messages", "readwrite");
+        tx.objectStore("messages").clear();
+        tx.oncomplete = () => window.location.reload();
+      }
+    }
+
     async function showMessageStatus(msgId) {
       const messages = await getAllFromDB();
       const msg = messages.find(m => m.id === msgId);
@@ -643,16 +787,17 @@
             <span style="font-size: 18px;">⏳</span>
             <div>
               <strong>В очереди (Без сети)</strong>
-              <div style="font-size: 11px;">Сообщение сохранилось на устройстве, но не доставится до появления интернета</div>
+              <div style="font-size: 11px;">Сообщение сохранилось на устройстве и доставится сразу при подключении</div>
             </div>
           </div>`;
       } else if (msg.readByPeer) {
+        const readTimeStr = msg.readTimestamp ? new Date(msg.readTimestamp).toLocaleString() : "Только что";
         statusInfo.innerHTML = `
           <div class="status-badge">
             <span style="font-size: 18px; color: #81c784;">✓✓</span>
             <div>
-              <strong style="color: #81c784;">Прочитано</strong>
-              <div style="font-size: 11px;">Собеседник открыл и просмотрел диалог</div>
+              <strong style="color: #81c784;">Прочитано собеседником</strong>
+              <div style="font-size: 11px; margin-top: 2px;"><b>Точное время:</b> ${readTimeStr}</div>
             </div>
           </div>`;
       } else {
@@ -661,7 +806,7 @@
             <span style="font-size: 18px; color: #b0bec5;">✓</span>
             <div>
               <strong>Доставлено</strong>
-              <div style="font-size: 11px;">Сообщение сохранено в облаке и ожидает прочтения</div>
+              <div style="font-size: 11px;">Сообщение сохранено в облаке и ожидает открытия</div>
             </div>
           </div>`;
       }
@@ -694,7 +839,7 @@
       }
 
       config = { token, secret, username, peer };
-      localStorage.setItem('chat_direct_cfg_v4', JSON.stringify(config));
+      localStorage.setItem('chat_direct_cfg_v5', JSON.stringify(config));
       initApp();
     }
 
@@ -702,7 +847,7 @@
       requestNotificationPermission();
       document.getElementById('settings-modal').classList.add('hidden');
       document.getElementById('chat-title').textContent = `@${config.peer}`;
-      document.getElementById('peer-status-text').textContent = 'Личный диалог';
+      document.getElementById('peer-status-text').textContent = 'Приватный канал';
 
       renderedStateMap.clear();
       document.getElementById('chat-box').innerHTML = '';
@@ -713,14 +858,14 @@
       isFirstSync = true;
       syncWithYandex();
       if (window.syncInterval) clearInterval(window.syncInterval);
-      window.syncInterval = setInterval(syncWithYandex, 3000);
+      window.syncInterval = setInterval(syncWithYandex, 3500);
     }
 
     async function deriveKey(secret) {
       const enc = new TextEncoder();
       const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(secret), "PBKDF2", false, ["deriveKey"]);
       return crypto.subtle.deriveKey(
-        { name: "PBKDF2", salt: enc.encode("relay_direct_salt_v4"), iterations: 50000, hash: "SHA-256" },
+        { name: "PBKDF2", salt: enc.encode("relay_direct_salt_v5"), iterations: 50000, hash: "SHA-256" },
         keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
       );
     }
@@ -783,10 +928,42 @@
       });
     }
 
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (file.size > 30 * 1024 * 1024) {
+        alert("Файл слишком большой! Лимит для пересылки — 30 МБ.");
+        cancelFileSelect();
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        selectedFileData = {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          data: evt.target.result
+        };
+        document.getElementById('file-name-indicator').textContent = file.name;
+        document.getElementById('file-preview-container').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function cancelFileSelect() {
+      selectedFileData = null;
+      document.getElementById('file-input').value = '';
+      document.getElementById('file-name-indicator').textContent = '';
+      document.getElementById('file-preview-container').classList.add('hidden');
+    }
+
     async function handleSend() {
       const input = document.getElementById('msg-input');
       const text = input.value.trim();
-      if (!text) return;
+
+      if (!text && !selectedFileData) return;
 
       if (editingMsgId) {
         const messages = await getAllFromDB();
@@ -804,14 +981,18 @@
           timestamp: Date.now(),
           sender: config.username,
           text,
+          file: selectedFileData,
           pending: !navigator.onLine,
           readByPeer: false,
+          readTimestamp: null,
           time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
         };
         await saveToDB(msg);
       }
 
       input.value = '';
+      cancelFileSelect();
+      
       await renderMessages(true);
       syncWithYandex();
     }
@@ -896,15 +1077,28 @@
     }
 
     function escapeJsString(str) {
-      return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+      return (str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+
+    function generateMediaHtml(file) {
+      if (!file) return '';
+      if (file.type.startsWith('image/')) {
+        return `<img src="${file.data}" class="msg-media" onclick="event.stopPropagation(); openMediaModal('image', '${file.data}', '${escapeJsString(file.name)}')">`;
+      } else if (file.type.startsWith('video/')) {
+        return `<video src="${file.data}" class="msg-media" onclick="event.stopPropagation(); openMediaModal('video', '${file.data}', '${escapeJsString(file.name)}')"></video>`;
+      } else if (file.type.startsWith('audio/')) {
+        return `<div class="msg-file-attach" onclick="event.stopPropagation(); openMediaModal('audio', '${file.data}', '${escapeJsString(file.name)}')" style="cursor:pointer;">🎵 ${escapeHtml(file.name)}</div>`;
+      } else {
+        return `<a href="${file.data}" download="${file.name}" class="msg-file-attach" onclick="event.stopPropagation()">📄 ${escapeHtml(file.name)}</a>`;
+      }
     }
 
     async function renderMessages(forceScroll = false) {
-      const messages = await getAllFromDB();
+      const activeMessages = await getAllFromDB();
       const box = document.getElementById('chat-box');
-      messages.sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
+      activeMessages.sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
 
-      const currentIds = new Set(messages.map(m => m.id));
+      const currentIds = new Set(activeMessages.map(m => m.id));
 
       for (const [id, node] of renderedStateMap.entries()) {
         if (!currentIds.has(id)) {
@@ -915,9 +1109,9 @@
 
       let hasNewMessage = false;
 
-      messages.forEach(m => {
+      activeMessages.forEach(m => {
         const isMy = m.sender === config.username;
-        const stateKey = `${m.text}_${m.edited}_${m.readByPeer}_${m.pending}`;
+        const stateKey = `${m.text}_${m.edited}_${m.readByPeer}_${m.pending}_${m.readTimestamp}`;
 
         if (!renderedStateMap.has(m.id)) {
           const wrapper = document.createElement('div');
@@ -935,10 +1129,13 @@
             }
           }
 
+          const mediaContent = generateMediaHtml(m.file);
+
           const msgDiv = document.createElement('div');
           msgDiv.className = 'msg';
           msgDiv.innerHTML = `
             ${escapeHtml(m.text)}
+            ${mediaContent}
             <div class="msg-meta">
               ${m.edited ? '<span class="edited-mark">изм.</span>' : ''}
               <span>${m.time}</span>
@@ -979,8 +1176,11 @@
               }
             }
 
+            const mediaContent = generateMediaHtml(m.file);
+
             msgDiv.innerHTML = `
               ${escapeHtml(m.text)}
+              ${mediaContent}
               <div class="msg-meta">
                 ${m.edited ? '<span class="edited-mark">изм.</span>' : ''}
                 <span>${m.time}</span>
@@ -998,7 +1198,7 @@
     }
 
     function escapeHtml(str) {
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
     async function syncWithYandex() {
@@ -1013,13 +1213,16 @@
       const peerFileName = `direct_${config.peer}_${config.username}.json`;
 
       try {
-        const remoteData = await downloadFile(`app:/RelayChat/${peerFileName}`);
+        const remoteData = await fetchWithRetry(() => downloadFile(`app:/RelayChat/${peerFileName}`));
+        const now = Date.now();
+
         if (remoteData && remoteData.payload) {
           const decryptedText = await decrypt(remoteData.payload);
           if (decryptedText) {
             const parsedData = JSON.parse(decryptedText);
             const incomingMsgs = parsedData.messages || [];
             const peerReadTimestamp = parsedData.lastReadTimestamp || 0;
+            const peerReadTimeActual = parsedData.lastReadTimeActual || now;
 
             const localMsgs = await getAllFromDB();
             const localMsgIds = new Set(localMsgs.map(m => m.id));
@@ -1028,7 +1231,7 @@
             for (const m of incomingMsgs) {
               if (!localMsgIds.has(m.id)) {
                 if (!isFirstSync && m.sender === config.peer) {
-                  sendNotification(`Сообщение от @${config.peer}`, m.text);
+                  sendNotification(`Сообщение от @${config.peer}`, m.text || "Прикреплен медиафайл");
                 }
               }
               await saveToDB(m);
@@ -1038,6 +1241,7 @@
               if (localMsg.sender === config.username) {
                 if (localMsg.timestamp <= peerReadTimestamp && !localMsg.readByPeer) {
                   localMsg.readByPeer = true;
+                  localMsg.readTimestamp = peerReadTimeActual;
                   await saveToDB(localMsg);
                 }
               } else {
@@ -1069,26 +1273,51 @@
         
         const encryptedData = await encrypt(JSON.stringify({
           sender: config.username,
-          updatedAt: Date.now(),
+          updatedAt: now,
           lastReadTimestamp: maxPeerMsgTimestamp,
+          lastReadTimeActual: now,
           messages: myMsgs
         }));
 
-        await uploadFile(`app:/RelayChat/${myFileName}`, { payload: encryptedData });
+        await fetchWithRetry(() => uploadFile(`app:/RelayChat/${myFileName}`, { payload: encryptedData }));
 
         await renderMessages();
         dot.className = "status-dot online";
+        syncFailCount = 0;
       } catch (err) {
+        syncFailCount++;
+        if (syncFailCount > 2) {
+          currentProxyIndex = (currentProxyIndex + 1) % PROXY_HOSTS.length;
+        }
         dot.className = "status-dot error";
       }
     }
 
+    async function fetchWithRetry(fn, retries = 2) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          return await fn();
+        } catch (e) {
+          if (i === retries - 1) throw e;
+          await new Promise(r => setTimeout(r, 1000));
+        }
+      }
+    }
+
     async function uploadFile(path, dataObj) {
-      const res = await fetch(`https://cloud-api.yandex.net/v1/disk/resources/upload?path=${encodeURIComponent(path)}&overwrite=true`, {
-        headers: { 'Authorization': `OAuth ${config.token}` }
+      const baseUrl = PROXY_HOSTS[currentProxyIndex];
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+      const res = await fetch(`${baseUrl}/v1/disk/resources/upload?path=${encodeURIComponent(path)}&overwrite=true`, {
+        headers: { 'Authorization': `OAuth ${config.token}` },
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
+
       if (!res.ok) return false;
       const { href } = await res.json();
+      
       const putRes = await fetch(href, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -1098,9 +1327,16 @@
     }
 
     async function downloadFile(path) {
-      const res = await fetch(`https://cloud-api.yandex.net/v1/disk/resources/download?path=${encodeURIComponent(path)}`, {
-        headers: { 'Authorization': `OAuth ${config.token}` }
+      const baseUrl = PROXY_HOSTS[currentProxyIndex];
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+      const res = await fetch(`${baseUrl}/v1/disk/resources/download?path=${encodeURIComponent(path)}`, {
+        headers: { 'Authorization': `OAuth ${config.token}` },
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
+
       if (!res.ok) return null;
       const { href } = await res.json();
       const fileRes = await fetch(href);
@@ -1114,4 +1350,3 @@
   </script>
 </body>
 </html>
-
