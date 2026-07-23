@@ -3,11 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0d0d0e">
+  <meta name="theme-color" content="#09090b">
+  
+  <!-- Apple iOS PWA Meta -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Relay%20Chat%20Pro%22%2C%22short_name%22%3A%22Relay%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2309090b%22%2C%22theme_color%22%3A%22%230d0d0e%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
-  <title>Relay Direct Messenger v5.0 Pro (Offline Enhanced)</title>
+  <meta name="apple-mobile-web-app-title" content="Relay">
+
+  <!-- SVG App Icon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%2309090b'/%3E%3Ccircle cx='256' cy='256' r='180' fill='none' stroke='%2327272a' stroke-width='6' stroke-dasharray='16 16'/%3E%3Cpath d='M180 370V140h110c45 0 75 25 75 65 0 32-18 53-48 62l58 103h-52l-52-95h-41v95h-50z' fill='none' stroke='%232e7d32' stroke-width='38' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M180 370V140h110c45 0 75 25 75 65 0 32-18 53-48 62l58 103h-52l-52-95h-41v95h-50z' fill='none' stroke='%234caf50' stroke-width='14' stroke-linecap='round' stroke-linejoin='round' opacity='0.8'/%3E%3Ccircle cx='180' cy='140' r='14' fill='%23ffffff'/%3E%3Ccircle cx='290' cy='140' r='12' fill='%2381c784'/%3E%3Ccircle cx='180' cy='370' r='12' fill='%2381c784'/%3E%3Ccircle cx='325' cy='370' r='12' fill='%2381c784'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%2309090b'/%3E%3Ccircle cx='256' cy='256' r='180' fill='none' stroke='%2327272a' stroke-width='6' stroke-dasharray='16 16'/%3E%3Cpath d='M180 370V140h110c45 0 75 25 75 65 0 32-18 53-48 62l58 103h-52l-52-95h-41v95h-50z' fill='none' stroke='%232e7d32' stroke-width='38' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M180 370V140h110c45 0 75 25 75 65 0 32-18 53-48 62l58 103h-52l-52-95h-41v95h-50z' fill='none' stroke='%234caf50' stroke-width='14' stroke-linecap='round' stroke-linejoin='round' opacity='0.8'/%3E%3Ccircle cx='180' cy='140' r='14' fill='%23ffffff'/%3E%3Ccircle cx='290' cy='140' r='12' fill='%2381c784'/%3E%3Ccircle cx='180' cy='370' r='12' fill='%2381c784'/%3E%3Ccircle cx='325' cy='370' r='12' fill='%2381c784'/%3E%3C/svg%3E">
+
+  <!-- PWA Web Manifest -->
+  <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Relay%20Chat%20Max%22%2C%22short_name%22%3A%22Relay%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22portrait%22%2C%22background_color%22%3A%22%2309090b%22%2C%22theme_color%22%3A%22%2309090b%22%7D">
+
+  <title>Relay Direct Messenger v6.0 Max Hybrid</title>
 
   <style>
     :root {
@@ -34,9 +44,9 @@
     .brand span.peer-status { font-size: 11px; color: var(--text-muted); }
 
     .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); transition: all 0.3s; }
-    .status-dot.online { background: #4caf50; box-shadow: 0 0 10px rgba(76,175,80,0.6); }
-    .status-dot.offline { background: #ff9800; box-shadow: 0 0 10px rgba(255,152,0,0.6); }
-    .status-dot.error { background: #f44336; box-shadow: 0 0 10px rgba(244,67,54,0.6); }
+    .status-dot.online-ws { background: #00e676; box-shadow: 0 0 10px rgba(0,230,118,0.8); }
+    .status-dot.online-yandex { background: #ffb74d; box-shadow: 0 0 10px rgba(255,183,77,0.8); }
+    .status-dot.offline { background: #f44336; box-shadow: 0 0 10px rgba(244,67,54,0.6); }
 
     .btn-icon { background: transparent; border: none; color: var(--text-muted); padding: 8px; border-radius: 50%; cursor: pointer; transition: all 0.2s; font-size: 15px; }
     .btn-icon:hover { color: #fff; background: rgba(255,255,255,0.06); }
@@ -61,7 +71,6 @@
 
     .msg-meta { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: rgba(255,255,255,0.5); float: right; margin: 4px 0 0 10px; }
     .ticks { font-size: 11px; font-weight: 700; letter-spacing: -2px; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
-    .ticks:hover { background: rgba(255,255,255,0.1); }
     .ticks.read { color: #81c784; } .ticks.delivered { color: #b0bec5; } .ticks.pending { color: #ffb74d; }
     .edited-mark { font-style: italic; font-size: 10px; opacity: 0.6; }
 
@@ -111,7 +120,6 @@
 <body>
 
   <div id="app-viewport">
-    <!-- Окно просмотра медиа -->
     <div id="media-modal" class="modal-overlay flex-center hidden" onclick="closeMediaModal()">
       <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px; color: #fff; background: rgba(255,255,255,0.1);">✕</button>
       <div class="media-modal-content" onclick="event.stopPropagation()" id="media-modal-body"></div>
@@ -119,16 +127,15 @@
 
     <!-- Окно настроек -->
     <div id="settings-modal" class="modal-overlay hidden">
-      <h2>👤 Настройки Relay v5.0 Pro</h2>
+      <h2>👤 Настройки Relay v6.0 Max</h2>
       <label>Ваш никнейм:</label>
       <input type="text" id="username-input" placeholder="Например: Stas" maxlength="20" autocomplete="off">
       <label>Никнейм собеседника:</label>
       <input type="text" id="peer-input" placeholder="Например: Masha" maxlength="20" autocomplete="off">
 
-      <div class="rule-box">
-        💡 <b>Зеркальное правило никнеймов:</b><br>
-        • У вас: <b>Stas</b> ➔ <b>Masha</b> | У собеседника: <b>Masha</b> ➔ <b>Stas</b>
-      </div>
+      <label>URL сервера Render (Node.js):</label>
+      <input type="text" id="render-url-input" placeholder="https://your-app.onrender.com" autocomplete="off">
+      <span class="field-hint">💡 Если сервер спит или недоступен, автоматом работает Яндекс API!</span>
 
       <label>Пароль шифрования комнаты:</label>
       <div class="input-group">
@@ -136,46 +143,34 @@
         <button type="button" class="btn-toggle-pwd" onclick="toggleVisibility('secret-input', this)">👁</button>
       </div>
 
-      <label>Яндекс OAuth Токен:</label>
+      <label>Яндекс OAuth Токен (Резервный канал):</label>
       <div class="input-group">
         <input type="password" id="token-input" autocomplete="off">
         <button type="button" class="btn-toggle-pwd" onclick="toggleVisibility('token-input', this)">👁</button>
       </div>
-      <span class="field-hint">✅ Токен предзаполнен и работает по умолчанию!</span>
 
-      <button class="btn-cancel" onclick="toggleModal('help-modal', true)">📖 Полная инструкция и правила</button>
+      <button class="btn-cancel" onclick="toggleModal('help-modal', true)">📖 Инструкция</button>
       <button class="btn-send" onclick="saveSettings()">Войти в чат</button>
-      <button class="btn-danger" onclick="emergencyBurn()">💥 Экстренно сжечь базу и ключи</button>
+      <button class="btn-danger" onclick="emergencyBurn()">💥 Сжечь данные</button>
     </div>
 
-    <!-- Модальное окно инструкции -->
     <div id="help-modal" class="modal-overlay flex-center hidden">
       <div style="max-width: 480px; max-height: 85vh; overflow-y: auto;" class="modal-card">
-        <h3 style="color: #fff; margin-bottom: 12px; font-size: 18px;">📱 Инструкция и оптимизация под белые списки</h3>
+        <h3 style="color: #fff; margin-bottom: 12px; font-size: 18px;">📱 Relay Hybrid Engine</h3>
         <div style="display: flex; flex-direction: column; gap: 12px; font-size: 12px;">
           <div>
-            <strong style="color: #81c784; font-size: 13px;">📲 Сохранение PWA на iPhone/Android</strong>
-            <ol style="padding-left: 18px; margin-top: 6px;">
-              <li>Откройте ссылку в браузере.</li>
-              <li>Нажмите <b>«Поделиться»</b> ➔ <b>«На экран "Домой"»</b>.</li>
-            </ol>
-          </div>
-          <hr style="border: none; border-top: 1px solid var(--border-color);">
-          <div>
-            <strong style="color: #81c784; font-size: 13px;">🛡 Оптимизация для РФ и отключений Сети</strong>
+            <strong style="color: #81c784; font-size: 13px;">🟢 Индикаторы сети:</strong>
             <ul style="padding-left: 18px; margin-top: 4px;">
-              <li>⚡ <b>Offline-first:</b> Работает автономно.</li>
-              <li>📦 <b>Store-and-Forward:</b> Авто-отправка сообщений при сети.</li>
-              <li>🔄 <b>Fallback прокси:</b> Зеркала для обхода блокировок.</li>
-              <li>📎 <b>Файлы/Фото:</b> Шифрованная передача до 30МБ.</li>
+              <li>🟢 <b>Ярко-зеленый:</b> Подключен Render WebSocket (Мгновенно).</li>
+              <li>🟡 <b>Желтый:</b> Работает через Яндекс.Диск (Резерв).</li>
+              <li>🔴 <b>Красный:</b> Офлайн (Сообщения пишутся в локальную очередь).</li>
             </ul>
           </div>
         </div>
-        <button class="btn-send" style="width: 100%; margin-top: 16px;" onclick="toggleModal('help-modal', false)">Понятно, закрыть</button>
+        <button class="btn-send" style="width: 100%; margin-top: 16px;" onclick="toggleModal('help-modal', false)">Закрыть</button>
       </div>
     </div>
 
-    <!-- Модальное окно статуса сообщений -->
     <div id="status-modal" class="modal-overlay flex-center hidden">
       <div style="max-width: 380px;" class="modal-card">
         <h3 style="color: #fff; margin-bottom: 12px; font-size: 16px;">📊 Статус сообщения</h3>
@@ -184,7 +179,6 @@
       </div>
     </div>
 
-    <!-- Модальное окно подтверждения очистки -->
     <div id="clear-modal" class="modal-overlay flex-center hidden">
       <div style="max-width: 360px;" class="modal-card">
         <h3 style="color: #fff; margin-bottom: 8px; font-size: 16px;">🗑 Очистить историю?</h3>
@@ -236,13 +230,18 @@
   </div>
 
   <script>
-    // --- Service Worker для Offline PWA ---
+    // --- Service Worker & Background Sync ---
     if ('serviceWorker' in navigator) {
       const swCode = `
-        self.addEventListener('install', () => self.skipWaiting());
+        const CACHE_NAME = 'relay-pwa-v6';
+        self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll([location.href]))); });
         self.addEventListener('activate', e => e.waitUntil(clients.claim()));
         self.addEventListener('fetch', e => {
-          if (e.request.method === 'GET') e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+          if (e.request.method !== 'GET') return;
+          e.respondWith(caches.match(e.request).then(c => c || fetch(e.request)));
+        });
+        self.addEventListener('sync', e => {
+          if (e.tag === 'sync-messages') e.waitUntil(clients.matchAll().then(c => c.forEach(client => client.postMessage('TRIGGER_SYNC'))));
         });
       `;
       navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode], { type: 'application/javascript' }))).catch(() => {});
@@ -253,9 +252,10 @@
     
     let currentProxyIndex = 0, db, cryptoKey, editingMsgId = null, activeContextMenu = null, longPressTimer = null;
     let isFirstSync = true, selectedFileData = null, syncFailCount = 0;
+    let socket = null, isWsConnected = false, reconnectTimer = null;
     const renderedStateMap = new Map();
 
-    let config = JSON.parse(localStorage.getItem('chat_direct_cfg_v5') || '{}');
+    let config = JSON.parse(localStorage.getItem('chat_direct_cfg_v6') || '{}');
     if (!config.token) config.token = DEFAULT_TOKEN;
 
     const getChatId = (u1, u2) => [u1.toLowerCase(), u2.toLowerCase()].sort().join('_');
@@ -270,6 +270,21 @@
       btn.style.color = input.type === "text" ? "var(--accent)" : "var(--text-muted)";
     }
 
+    function updateStatusIndicator(mode) {
+      const dot = document.getElementById('status-dot');
+      const text = document.getElementById('peer-status-text');
+      if (mode === 'ws') {
+        dot.className = "status-dot online-ws";
+        text.textContent = "Render WebSocket (Прямой эфир)";
+      } else if (mode === 'yandex') {
+        dot.className = "status-dot online-yandex";
+        text.textContent = "Яндекс API (Резервный канал)";
+      } else {
+        dot.className = "status-dot offline";
+        text.textContent = "Офлайн (Очередь сохранения)";
+      }
+    }
+
     function sendNotification(title, body) {
       if ("Notification" in window && Notification.permission === "granted") {
         new Notification(title, { body, icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💬</text></svg>' });
@@ -277,7 +292,7 @@
     }
 
     // --- IndexedDB ---
-    const request = indexedDB.open("RelayDirectDB_v5", 1);
+    const request = indexedDB.open("RelayDirectDB_v6", 1);
     request.onupgradeneeded = e => {
       db = e.target.result;
       if (!db.objectStoreNames.contains("messages")) {
@@ -314,67 +329,8 @@
       document.getElementById('secret-input').value = config.secret || '1234';
       document.getElementById('username-input').value = config.username || '';
       document.getElementById('peer-input').value = config.peer || '';
+      document.getElementById('render-url-input').value = config.renderUrl || '';
       toggleModal('settings-modal', true);
-    }
-
-    function openMediaModal(type, src, name = '') {
-      const body = document.getElementById('media-modal-body');
-      body.innerHTML = '';
-      let elem;
-      if (type === 'image') elem = document.createElement('img');
-      else if (type === 'video' || type === 'audio') {
-        elem = document.createElement(type);
-        elem.controls = elem.autoplay = true;
-      }
-      elem.src = src;
-      body.appendChild(elem);
-
-      if (name) {
-        const title = document.createElement('div');
-        title.style.cssText = 'color: #fff; font-size: 13px;';
-        title.textContent = name;
-        body.appendChild(title);
-      }
-      toggleModal('media-modal', true);
-    }
-
-    function closeMediaModal() {
-      document.getElementById('media-modal-body').innerHTML = '';
-      toggleModal('media-modal', false);
-    }
-
-    async function emergencyBurn() {
-      if (confirm("Вы действительно хотите БЕЗВОРОВРАТНО удалить все переписки, ключи и файлы?")) {
-        localStorage.clear();
-        await dbQuery("readwrite", store => store.clear());
-        location.reload();
-      }
-    }
-
-    async function showMessageStatus(msgId) {
-      const msg = (await getAllFromDB()).find(m => m.id === msgId);
-      if (!msg) return;
-
-      let content = '';
-      if (msg.pending) {
-        content = `<div class="status-badge"><span style="font-size: 18px;">⏳</span><div><strong>В очереди (Без сети)</strong><div style="font-size: 11px;">Сообщение доставится при подключении</div></div></div>`;
-      } else if (msg.readByPeer) {
-        const time = msg.readTimestamp ? new Date(msg.readTimestamp).toLocaleString() : "Только что";
-        content = `<div class="status-badge"><span style="font-size: 18px; color: #81c784;">✓✓</span><div><strong style="color: #81c784;">Прочитано собеседником</strong><div style="font-size: 11px;"><b>Время:</b> ${time}</div></div></div>`;
-      } else {
-        content = `<div class="status-badge"><span style="font-size: 18px; color: #b0bec5;">✓</span><div><strong>Доставлено</strong><div style="font-size: 11px;">Ожидает открытия</div></div></div>`;
-      }
-
-      document.getElementById('status-info').innerHTML = content;
-      toggleModal('status-modal', true);
-    }
-
-    async function confirmClearChat() {
-      toggleModal('clear-modal', false);
-      await clearAllDB();
-      renderedStateMap.clear();
-      document.getElementById('chat-box').innerHTML = '';
-      await syncWithYandex();
     }
 
     function saveSettings() {
@@ -382,12 +338,15 @@
       const secret = document.getElementById('secret-input').value.trim();
       const username = document.getElementById('username-input').value.trim().replace(/[^a-zA-Z0-9_-]/g, '');
       const peer = document.getElementById('peer-input').value.trim().replace(/[^a-zA-Z0-9_-]/g, '');
+      let renderUrl = document.getElementById('render-url-input').value.trim();
       
-      if (!secret || !username || !peer) return alert("Заполните все поля!"); 
+      if (!secret || !username || !peer) return alert("Заполните поля!"); 
       if (username.toLowerCase() === peer.toLowerCase()) return alert("Никнеймы должны отличаться!");
 
-      config = { token, secret, username, peer };
-      localStorage.setItem('chat_direct_cfg_v5', JSON.stringify(config));
+      if (renderUrl.endsWith('/')) renderUrl = renderUrl.slice(0, -1);
+
+      config = { token, secret, username, peer, renderUrl };
+      localStorage.setItem('chat_direct_cfg_v6', JSON.stringify(config));
       initApp();
     }
 
@@ -395,7 +354,6 @@
       if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
       toggleModal('settings-modal', false);
       document.getElementById('chat-title').textContent = `@${config.peer}`;
-      document.getElementById('peer-status-text').textContent = 'Приватный канал';
 
       renderedStateMap.clear();
       document.getElementById('chat-box').innerHTML = '';
@@ -404,9 +362,70 @@
       await renderMessages(true);
       
       isFirstSync = true;
+      initWebSocket();
       syncWithYandex();
+
       clearInterval(window.syncInterval);
-      window.syncInterval = setInterval(syncWithYandex, 3500);
+      window.syncInterval = setInterval(() => {
+        if (!isWsConnected) syncWithYandex();
+      }, 3500);
+    }
+
+    // --- WebSocket подсистема (Render) ---
+    function initWebSocket() {
+      if (!config.renderUrl) return;
+      
+      // Разбудить спящий Render через HTTP
+      fetch(`${config.renderUrl}/health`).catch(() => {});
+
+      const wsUrl = config.renderUrl.replace(/^http/, 'ws');
+      try {
+        socket = new WebSocket(wsUrl);
+
+        socket.onopen = () => {
+          isWsConnected = true;
+          updateStatusIndicator('ws');
+          socket.send(JSON.stringify({ type: 'register', username: config.username }));
+          pushPendingMessagesToNetwork();
+        };
+
+        socket.onmessage = async (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            if (data.type === 'relay_signal' && data.payload) {
+              const decryptedText = await decrypt(data.payload);
+              if (decryptedText) {
+                const incomingMsg = JSON.parse(decryptedText);
+                await saveToDB(incomingMsg);
+                sendNotification(`Сообщение от @${config.peer}`, incomingMsg.text || "Прикреплен файл");
+                await renderMessages();
+              }
+            }
+          } catch(err) {}
+        };
+
+        socket.onclose = socket.onerror = () => {
+          isWsConnected = false;
+          if (navigator.onLine) updateStatusIndicator('yandex');
+          else updateStatusIndicator('offline');
+
+          clearTimeout(reconnectTimer);
+          reconnectTimer = setTimeout(initWebSocket, 5000);
+        };
+      } catch(e) {
+        isWsConnected = false;
+      }
+    }
+
+    async function broadcastWsSignal(payloadObj) {
+      if (isWsConnected && socket?.readyState === WebSocket.OPEN) {
+        const encrypted = await encrypt(JSON.stringify(payloadObj));
+        socket.send(JSON.stringify({
+          type: 'relay_signal',
+          targetPeer: config.peer,
+          payload: encrypted
+        }));
+      }
     }
 
     // --- Шифрование AES-GCM ---
@@ -414,7 +433,7 @@
       const enc = new TextEncoder();
       const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(secret), "PBKDF2", false, ["deriveKey"]);
       return crypto.subtle.deriveKey(
-        { name: "PBKDF2", salt: enc.encode("relay_direct_salt_v5"), iterations: 50000, hash: "SHA-256" },
+        { name: "PBKDF2", salt: enc.encode("relay_direct_salt_v6"), iterations: 50000, hash: "SHA-256" },
         keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
       );
     }
@@ -436,7 +455,7 @@
       const file = e.target.files[0];
       if (!file) return;
       if (file.size > 25 * 1024 * 1024) {
-        alert("Файл слишком большой! Лимит — 30 МБ.");
+        alert("Файл слишком большой! Лимит — 25 МБ.");
         return cancelFileSelect();
       }
       const reader = new FileReader();
@@ -459,31 +478,56 @@
       const text = input.value.trim();
       if (!text && !selectedFileData) return;
 
+      const isOnlineNow = navigator.onLine;
+
       if (editingMsgId) {
         const msg = (await getAllFromDB()).find(m => m.id === editingMsgId);
         if (msg) {
           msg.text = text;
           msg.edited = true;
-          msg.pending = !navigator.onLine;
+          msg.pending = !isOnlineNow;
           await saveToDB(msg);
+          broadcastWsSignal(msg);
         }
         cancelEdit();
       } else {
-        await saveToDB({
+        const newMsg = {
           id: `${config.username}_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
           timestamp: Date.now(),
           sender: config.username,
           text, file: selectedFileData,
-          pending: !navigator.onLine,
+          pending: !isOnlineNow,
           readByPeer: false, readTimestamp: null,
           time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-        });
+        };
+        await saveToDB(newMsg);
+        broadcastWsSignal(newMsg);
       }
 
       input.value = '';
       cancelFileSelect();
       await renderMessages(true);
+      
+      if ('serviceWorker' in navigator && 'SyncManager' in window) {
+        const reg = await navigator.serviceWorker.ready;
+        reg.sync.register('sync-messages').catch(() => {});
+      }
+
       syncWithYandex();
+    }
+
+    async function pushPendingMessagesToNetwork() {
+      const msgs = await getAllFromDB();
+      let changed = false;
+      for (const m of msgs) {
+        if (m.pending && navigator.onLine) {
+          m.pending = false;
+          await saveToDB(m);
+          broadcastWsSignal(m);
+          changed = true;
+        }
+      }
+      if (changed) renderMessages();
     }
 
     function startEdit(id, currentText) {
@@ -553,6 +597,66 @@
       if (activeContextMenu) { activeContextMenu.remove(); activeContextMenu = null; }
     }
 
+    function openMediaModal(type, src, name = '') {
+      const body = document.getElementById('media-modal-body');
+      body.innerHTML = '';
+      let elem;
+      if (type === 'image') elem = document.createElement('img');
+      else if (type === 'video' || type === 'audio') {
+        elem = document.createElement(type);
+        elem.controls = elem.autoplay = true;
+      }
+      elem.src = src;
+      body.appendChild(elem);
+
+      if (name) {
+        const title = document.createElement('div');
+        title.style.cssText = 'color: #fff; font-size: 13px;';
+        title.textContent = name;
+        body.appendChild(title);
+      }
+      toggleModal('media-modal', true);
+    }
+
+    function closeMediaModal() {
+      document.getElementById('media-modal-body').innerHTML = '';
+      toggleModal('media-modal', false);
+    }
+
+    async function emergencyBurn() {
+      if (confirm("Удалить ВСЕ переписки, ключи и данные безвозвратно?")) {
+        localStorage.clear();
+        await dbQuery("readwrite", store => store.clear());
+        location.reload();
+      }
+    }
+
+    async function showMessageStatus(msgId) {
+      const msg = (await getAllFromDB()).find(m => m.id === msgId);
+      if (!msg) return;
+
+      let content = '';
+      if (msg.pending) {
+        content = `<div class="status-badge"><span style="font-size: 18px;">⏳</span><div><strong>В очереди (Без сети)</strong><div style="font-size: 11px;">Отправится автоматически</div></div></div>`;
+      } else if (msg.readByPeer) {
+        const time = msg.readTimestamp ? new Date(msg.readTimestamp).toLocaleString() : "Только что";
+        content = `<div class="status-badge"><span style="font-size: 18px; color: #81c784;">✓✓</span><div><strong style="color: #81c784;">Прочитано</strong><div style="font-size: 11px;">Время: ${time}</div></div></div>`;
+      } else {
+        content = `<div class="status-badge"><span style="font-size: 18px; color: #b0bec5;">✓</span><div><strong>Доставлено на сервер</strong></div></div>`;
+      }
+
+      document.getElementById('status-info').innerHTML = content;
+      toggleModal('status-modal', true);
+    }
+
+    async function confirmClearChat() {
+      toggleModal('clear-modal', false);
+      await clearAllDB();
+      renderedStateMap.clear();
+      document.getElementById('chat-box').innerHTML = '';
+      await syncWithYandex();
+    }
+
     function generateMediaHtml(file) {
       if (!file) return '';
       const escName = escapeJsString(file.name);
@@ -563,9 +667,9 @@
     }
 
     function renderTicks(msg) {
-      if (msg.pending) return `<span class="ticks pending" onclick="event.stopPropagation(); showMessageStatus('${msg.id}')" title="В очереди">⏳</span>`;
-      if (msg.readByPeer) return `<span class="ticks read" onclick="event.stopPropagation(); showMessageStatus('${msg.id}')" title="Прочитано">✓✓</span>`;
-      return `<span class="ticks delivered" onclick="event.stopPropagation(); showMessageStatus('${msg.id}')" title="Доставлено">✓</span>`;
+      if (msg.pending) return `<span class="ticks pending" onclick="event.stopPropagation(); showMessageStatus('${msg.id}')">⏳</span>`;
+      if (msg.readByPeer) return `<span class="ticks read" onclick="event.stopPropagation(); showMessageStatus('${msg.id}')">✓✓</span>`;
+      return `<span class="ticks delivered" onclick="event.stopPropagation(); showMessageStatus('${msg.id}')">✓</span>`;
     }
 
     async function renderMessages(forceScroll = false) {
@@ -629,15 +733,18 @@
       if (forceScroll || hasNewMessage) box.scrollTop = box.scrollHeight;
     }
 
-    // --- Сетевая синхронизация ---
+    // --- Резервная Синхронизация с Яндекс.Диском ---
     async function syncWithYandex() {
-      const dot = document.getElementById('status-dot');
-      if (!navigator.onLine) return dot.className = "status-dot offline";
+      if (!navigator.onLine) return updateStatusIndicator('offline');
+      if (isWsConnected) return updateStatusIndicator('ws');
+
+      updateStatusIndicator('yandex');
 
       const myFile = `direct_${config.username}_${config.peer}.json`;
       const peerFile = `direct_${config.peer}_${config.username}.json`;
 
       try {
+        await pushPendingMessagesToNetwork();
         const remoteData = await fetchWithRetry(() => transferDiskFile('download', `app:/RelayChat/${peerFile}`));
         const now = Date.now();
 
@@ -647,24 +754,19 @@
             const { messages: incomingMsgs = [], lastReadTimestamp = 0, lastReadTimeActual = now } = JSON.parse(decryptedText);
             const localMsgs = await getAllFromDB();
             const localMsgIds = new Set(localMsgs.map(m => m.id));
-            const currentRemoteIds = new Set(incomingMsgs.map(m => m.id));
 
             for (const m of incomingMsgs) {
               if (!localMsgIds.has(m.id) && !isFirstSync && m.sender === config.peer) {
-                sendNotification(`Сообщение от @${config.peer}`, m.text || "Прикреплен медиафайл");
+                sendNotification(`Сообщение от @${config.peer}`, m.text || "Файл");
               }
               await saveToDB(m);
             }
 
             for (const localMsg of localMsgs) {
-              if (localMsg.sender === config.username) {
-                if (localMsg.timestamp <= lastReadTimestamp && !localMsg.readByPeer) {
-                  localMsg.readByPeer = true;
-                  localMsg.readTimestamp = lastReadTimeActual;
-                  await saveToDB(localMsg);
-                }
-              } else if (!currentRemoteIds.has(localMsg.id)) {
-                await deleteFromDB(localMsg.id);
+              if (localMsg.sender === config.username && localMsg.timestamp <= lastReadTimestamp && !localMsg.readByPeer) {
+                localMsg.readByPeer = true;
+                localMsg.readTimestamp = lastReadTimeActual;
+                await saveToDB(localMsg);
               }
             }
           }
@@ -674,26 +776,21 @@
 
         const allMsgs = await getAllFromDB();
         let maxPeerMsgTimestamp = 0;
-
         for (let m of allMsgs) {
           if (m.sender === config.peer && m.timestamp > maxPeerMsgTimestamp) maxPeerMsgTimestamp = m.timestamp;
-          if (m.pending) { delete m.pending; await saveToDB(m); }
         }
 
-        const myMsgs = (await getAllFromDB()).filter(m => m.sender === config.username);
+        const myMsgs = allMsgs.filter(m => m.sender === config.username);
         const encryptedData = await encrypt(JSON.stringify({
           sender: config.username, updatedAt: now,
           lastReadTimestamp: maxPeerMsgTimestamp, lastReadTimeActual: now, messages: myMsgs
         }));
 
         await fetchWithRetry(() => transferDiskFile('upload', `app:/RelayChat/${myFile}`, { payload: encryptedData }));
-
         await renderMessages();
-        dot.className = "status-dot online";
         syncFailCount = 0;
       } catch {
         if (++syncFailCount > 2) currentProxyIndex = (currentProxyIndex + 1) % PROXY_HOSTS.length;
-        dot.className = "status-dot error";
       }
     }
 
@@ -707,7 +804,7 @@
     async function transferDiskFile(type, path, dataObj = null) {
       const baseUrl = PROXY_HOSTS[currentProxyIndex];
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 12000);
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       const endpoint = type === 'upload' ? 'upload?overwrite=true&path=' : 'download?path=';
       const res = await fetch(`${baseUrl}/v1/disk/resources/${endpoint}${encodeURIComponent(path)}`, {
@@ -728,8 +825,15 @@
       }
     }
 
-    window.addEventListener('online', () => syncWithYandex());
-    window.addEventListener('offline', () => document.getElementById('status-dot').className = "status-dot offline");
+    navigator.serviceWorker?.addEventListener('message', e => {
+      if (e.data === 'TRIGGER_SYNC') syncWithYandex();
+    });
+
+    window.addEventListener('online', () => {
+      initWebSocket();
+      syncWithYandex();
+    });
+    window.addEventListener('offline', () => updateStatusIndicator('offline'));
   </script>
 </body>
 </html>
