@@ -134,7 +134,7 @@
       <input type="text" id="peer-input" placeholder="Например: Masha" maxlength="20" autocomplete="off">
 
       <label>URL сервера Render (Node.js):</label>
-      <input type="text" id="render-url-input" placeholder="https://your-app.onrender.com" autocomplete="off">
+      <input type="text" id="render-url-input" value="https://twochat-3g8k.onrender.com" placeholder="https://twochat-3g8k.onrender.com" autocomplete="off">
       <span class="field-hint">💡 Если сервер спит или недоступен, автоматом работает Яндекс API!</span>
 
       <label>Пароль шифрования комнаты:</label>
@@ -248,6 +248,7 @@
     }
 
     const DEFAULT_TOKEN = "y0__wgBEMa2sf0IGP_1RSCBtIGxGCTcqP3i5Xi6F-JXhjOgxxUYVhg3";
+    const DEFAULT_RENDER_URL = "https://twochat-3g8k.onrender.com";
     const PROXY_HOSTS = ["https://cloud-api.yandex.net", "https://corsproxy.io/?" + encodeURIComponent("https://cloud-api.yandex.net")];
     
     let currentProxyIndex = 0, db, cryptoKey, editingMsgId = null, activeContextMenu = null, longPressTimer = null;
@@ -257,6 +258,7 @@
 
     let config = JSON.parse(localStorage.getItem('chat_direct_cfg_v6') || '{}');
     if (!config.token) config.token = DEFAULT_TOKEN;
+    if (!config.renderUrl) config.renderUrl = DEFAULT_RENDER_URL;
 
     const getChatId = (u1, u2) => [u1.toLowerCase(), u2.toLowerCase()].sort().join('_');
     const escapeHtml = str => (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -329,7 +331,7 @@
       document.getElementById('secret-input').value = config.secret || '1234';
       document.getElementById('username-input').value = config.username || '';
       document.getElementById('peer-input').value = config.peer || '';
-      document.getElementById('render-url-input').value = config.renderUrl || '';
+      document.getElementById('render-url-input').value = config.renderUrl || DEFAULT_RENDER_URL;
       toggleModal('settings-modal', true);
     }
 
@@ -338,7 +340,7 @@
       const secret = document.getElementById('secret-input').value.trim();
       const username = document.getElementById('username-input').value.trim().replace(/[^a-zA-Z0-9_-]/g, '');
       const peer = document.getElementById('peer-input').value.trim().replace(/[^a-zA-Z0-9_-]/g, '');
-      let renderUrl = document.getElementById('render-url-input').value.trim();
+      let renderUrl = document.getElementById('render-url-input').value.trim() || DEFAULT_RENDER_URL;
       
       if (!secret || !username || !peer) return alert("Заполните поля!"); 
       if (username.toLowerCase() === peer.toLowerCase()) return alert("Никнеймы должны отличаться!");
